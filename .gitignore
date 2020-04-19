@@ -1,2 +1,6 @@
 .stack-work/
 *~
+dist-newstyle/
+resources/words.txt
+stack.yaml.lock
+hoggle.cabal
