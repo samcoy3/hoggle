@@ -1,5 +1,8 @@
 module Boggle.Board
- (randomBoard) where
+ (randomBoard,
+  neighbours,
+  Point,
+  Board) where
 
 import qualified Data.Map as M
 
