@@ -22,10 +22,12 @@ description:         A Boggle web-app, written in Haskell.
 dependencies:
 - base >= 4.7 && < 5
 - containers >= 0.6
-- mwc-random >= 0.14
 - primitive >= 0.7
 - random >= 1.1
-- vector >= 0.12
+- servant >= 0.17
+- text >= 0.11
+- time >= 1.9
+- stm >= 2.5
 
 library:
   source-dirs: src
