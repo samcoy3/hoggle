@@ -1,53 +1,29 @@
-import React, { Component, FormEvent, ChangeEvent, MouseEvent } from "react";
+import React, { FormEvent, ChangeEvent, MouseEvent } from "react";
 import "./main.css";
 
-interface LandingProps {}
-
-interface LandingState {
+interface LandingProps {
   lobbyCode: string;
+  onJoinChange: (event: ChangeEvent<HTMLInputElement>) => void;
+  onJoinSubmit: (event: FormEvent<HTMLFormElement>) => void;
+  onCreateClick: (event: MouseEvent<HTMLButtonElement>) => void;
 }
 
-class Landing extends Component<LandingProps, LandingState> {
-  constructor(props: LandingProps) {
-    super(props);
-    this.state = {
-      lobbyCode: "",
-    };
-    this.handleJoinChange = this.handleJoinChange.bind(this);
-		this.handleJoinSubmit = this.handleJoinSubmit.bind(this);
-		this.handleCreateClick = this.handleCreateClick.bind(this);
-  }
-
-  handleJoinChange(event: ChangeEvent<HTMLInputElement>): void {
-    const lobbyCode = event.target.value;
-    this.setState({ lobbyCode: lobbyCode });
-  }
-
-  handleJoinSubmit(event: FormEvent<HTMLFormElement>): void {
-    event.preventDefault();
-    const lobbyCode = this.state.lobbyCode;
-		alert("Lobby code is " + lobbyCode);
-		// TODO: join lobby
-	}
-	
-	handleCreateClick(event: MouseEvent<HTMLButtonElement>): void {
-		alert("Creating new lobby")
-		// TODO: create new lobby
-	}
-
-  render() {
-    const lobbyCode = this.state.lobbyCode;
-    return (
-      <div className="Landing">
-        <JoinForm
-          lobbyCode={lobbyCode}
-          onChange={this.handleJoinChange}
-          onSubmit={this.handleJoinSubmit}
-        />
-				<CreateLobbyButton onClick={this.handleCreateClick}/>
-      </div>
-    );
-  }
+function Landing({
+  lobbyCode,
+  onJoinChange: handleJoinChange,
+  onJoinSubmit: handleJoinSubmit,
+  onCreateClick: handleCreateClick,
+}: LandingProps): JSX.Element {
+  return (
+    <div className="Landing">
+      <JoinForm
+        lobbyCode={lobbyCode}
+        onChange={handleJoinChange}
+        onSubmit={handleJoinSubmit}
+      />
+      <CreateLobbyButton onClick={handleCreateClick} />
+    </div>
+  );
 }
 
 interface JoinFormProps {
@@ -58,14 +34,14 @@ interface JoinFormProps {
 
 function JoinForm({
   lobbyCode,
-  onChange,
-  onSubmit,
+  onChange: handleChange,
+  onSubmit: handleSubmit,
 }: JoinFormProps): JSX.Element {
   return (
-    <form className="JoinLobbyForm" onSubmit={onSubmit}>
+    <form className="JoinLobbyForm" onSubmit={handleSubmit}>
       <label>
         Lobby Code:
-        <input type="text" value={lobbyCode} onChange={onChange} />
+        <input type="text" value={lobbyCode} onChange={handleChange} />
       </label>
       <input type="submit" value="Join" />
     </form>
@@ -76,9 +52,11 @@ interface CreateLobbyButtonProps {
   onClick: (event: MouseEvent<HTMLButtonElement>) => void;
 }
 
-function CreateLobbyButton({ onClick }: CreateLobbyButtonProps): JSX.Element {
+function CreateLobbyButton({
+  onClick: handleClick,
+}: CreateLobbyButtonProps): JSX.Element {
   return (
-    <button className="NewLobbyButton" onClick={onClick}>
+    <button className="NewLobbyButton" onClick={handleClick}>
       Create Lobby
     </button>
   );
