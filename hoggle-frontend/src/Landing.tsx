@@ -1,64 +1,80 @@
-import React, { FormEvent, ChangeEvent, MouseEvent } from "react";
+import React from "react";
 import "./main.css";
+import {
+  ChangeEventFunction,
+  SubmitEventFunction,
+  ClickEventFunction,
+} from "./App";
 
-interface LandingProps {
+type LandingProps = {
+  nickname: string;
   lobbyCode: string;
-  onJoinChange: (event: ChangeEvent<HTMLInputElement>) => void;
-  onJoinSubmit: (event: FormEvent<HTMLFormElement>) => void;
-  onCreateClick: (event: MouseEvent<HTMLButtonElement>) => void;
-}
+  handleChangeFunction: ChangeEventFunction;
+  joinLobbyFunction: SubmitEventFunction;
+  createLobbyFunction: ClickEventFunction;
+};
 
-function Landing({
-  lobbyCode,
-  onJoinChange: handleJoinChange,
-  onJoinSubmit: handleJoinSubmit,
-  onCreateClick: handleCreateClick,
-}: LandingProps): JSX.Element {
-  return (
-    <div className="Landing">
-      <JoinForm
-        lobbyCode={lobbyCode}
-        onChange={handleJoinChange}
-        onSubmit={handleJoinSubmit}
+const Landing = (props: LandingProps) => (
+  <div className="landing">
+    <TextInput
+      label={"Nickname:"}
+      name={"nickname"}
+      value={props.nickname}
+      handleChangeFunction={props.handleChangeFunction}
+      info={"Max 16 chars. [a-zA-Z0-9,.?!_- ]"}
+    />
+    <JoinForm
+      lobbyCode={props.lobbyCode}
+      handleChangeFunction={props.handleChangeFunction}
+      joinLobbyFunction={props.joinLobbyFunction}
+    />
+    <button onClick={props.createLobbyFunction}>Create New Lobby</button>
+  </div>
+);
+
+type TextInputProps = {
+  label: string;
+  name: string;
+  value: string;
+  handleChangeFunction: ChangeEventFunction;
+  info?: string;
+};
+
+const TextInput = (props: TextInputProps) => (
+  <div className="text-input-wrapper">
+    <label htmlFor={props.name}>{props.label}</label>
+    <input
+      type="text"
+      name={props.name}
+      value={props.value}
+      onChange={props.handleChangeFunction}
+    />
+    {props.info ? (
+      <div className="info">
+        <small>{props.info}</small>
+      </div>
+    ) : null}
+  </div>
+);
+
+type JoinFormProps = {
+  lobbyCode: string;
+  handleChangeFunction: ChangeEventFunction;
+  joinLobbyFunction: SubmitEventFunction;
+};
+
+const JoinForm = (props: JoinFormProps) => (
+  <div className="form-wrapper">
+    <form onSubmit={props.joinLobbyFunction} noValidate>
+      <TextInput
+        label={"Lobby Code:"}
+        name={"lobbyCode"}
+        value={props.lobbyCode}
+        handleChangeFunction={props.handleChangeFunction}
       />
-      <CreateLobbyButton onClick={handleCreateClick} />
-    </div>
-  );
-}
-
-interface JoinFormProps {
-  lobbyCode: string;
-  onChange: (event: ChangeEvent<HTMLInputElement>) => void;
-  onSubmit: (event: FormEvent<HTMLFormElement>) => void;
-}
-
-function JoinForm({
-  lobbyCode,
-  onChange: handleChange,
-  onSubmit: handleSubmit,
-}: JoinFormProps): JSX.Element {
-  return (
-    <form className="JoinLobbyForm" onSubmit={handleSubmit}>
-      <label>
-        Lobby Code:
-        <input type="text" value={lobbyCode} onChange={handleChange} />
-      </label>
       <input type="submit" value="Join" />
     </form>
-  );
-}
+  </div>
+);
 
-interface CreateLobbyButtonProps {
-  onClick: (event: MouseEvent<HTMLButtonElement>) => void;
-}
-
-function CreateLobbyButton({
-  onClick: handleClick,
-}: CreateLobbyButtonProps): JSX.Element {
-  return (
-    <button className="NewLobbyButton" onClick={handleClick}>
-      Create Lobby
-    </button>
-  );
-}
 export default Landing;

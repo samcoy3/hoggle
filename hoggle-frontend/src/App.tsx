@@ -1,10 +1,15 @@
 import React, { Component, FormEvent, ChangeEvent, MouseEvent } from "react";
-// import logo from "./logo.svg";
 import "./App.css";
 
 import Landing from "./Landing";
 import Lobby from "./Lobby";
 import Game from "./Game";
+
+export type ChangeEventFunction = (
+  event: ChangeEvent<HTMLInputElement>
+) => void;
+export type SubmitEventFunction = (event: FormEvent<HTMLFormElement>) => void;
+export type ClickEventFunction = (event: MouseEvent<HTMLButtonElement>) => void;
 
 export enum GameState {
   InLanding,
@@ -12,46 +17,59 @@ export enum GameState {
   InGame,
 }
 
-interface AppProps {
-  gameState: GameState;
-}
+type AppProps = {
+};
 
-interface AppState {
+type AppState = {
   gameState: GameState;
+  nickname: string;
   lobbyCode: string;
-}
+};
 
 class App extends Component<AppProps, AppState> {
   constructor(props: AppProps) {
     super(props);
     this.state = {
-      gameState: props.gameState,
+      gameState: GameState.InLanding,
+      nickname: "",
       lobbyCode: "",
     };
-    this.handleJoinChange = this.handleJoinChange.bind(this);
-    this.handleJoinSubmit = this.handleJoinSubmit.bind(this);
-    this.handleCreateClick = this.handleCreateClick.bind(this);
+    this.handleTextChange = this.handleTextChange.bind(this);
+    this.joinLobby = this.joinLobby.bind(this);
+    this.createLobby = this.createLobby.bind(this);
   }
 
-  handleJoinChange(event: ChangeEvent<HTMLInputElement>): void {
-    const lobbyCode = event.target.value;
-    this.setState({ lobbyCode: lobbyCode });
+  handleTextChange(event: ChangeEvent<HTMLInputElement>): void {
+    const { name, value } = event.target;
+    switch (name) {
+      case "nickname":
+        this.setState({ nickname: value });
+        break;
+      case "lobbyCode":
+        this.setState({ lobbyCode: value });
+        break;
+      default:
+        alert("Unknown text field name: " + name);
+        break;
+    }
   }
 
-  handleJoinSubmit(event: FormEvent<HTMLFormElement>): void {
+  joinLobby(event: FormEvent<HTMLFormElement>): void {
     event.preventDefault();
+    const nickname = this.state.nickname;
     const lobbyCode = this.state.lobbyCode;
-    alert("Lobby code is " + lobbyCode);
+    alert(`Welcome to lobby ${lobbyCode}, ${nickname}`);
     // TODO: join lobby
   }
 
-  handleCreateClick(event: MouseEvent<HTMLButtonElement>): void {
+  createLobby(): void {
     alert("Creating new lobby");
     // TODO: create new lobby
   }
 
   render() {
     const gameState: GameState = this.state.gameState;
+    const nickname: string = this.state.nickname;
     const lobbyCode: string = this.state.lobbyCode;
     return (
       <div className="App">
@@ -66,10 +84,11 @@ class App extends Component<AppProps, AppState> {
               case GameState.InLanding:
                 return (
                   <Landing
+                    nickname={nickname}
                     lobbyCode={lobbyCode}
-                    onJoinChange={this.handleJoinChange}
-                    onJoinSubmit={this.handleJoinSubmit}
-                    onCreateClick={this.handleCreateClick}
+                    handleChangeFunction={this.handleTextChange}
+                    joinLobbyFunction={this.joinLobby}
+                    createLobbyFunction={this.createLobby}
                   />
                 );
               case GameState.InLobby:
