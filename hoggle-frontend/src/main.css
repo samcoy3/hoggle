@@ -1,0 +1,7 @@
+.text-input {
+  border-radius: 0.5em;
+}
+
+.text-input.invalid {
+  border-color: red;
+}

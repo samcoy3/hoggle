@@ -8,6 +8,7 @@ import {
 
 type LandingProps = {
   nickname: string;
+  validNickname?: boolean;
   lobbyCode: string;
   handleChangeFunction: ChangeEventFunction;
   joinLobbyFunction: SubmitEventFunction;
@@ -20,6 +21,7 @@ const Landing = (props: LandingProps) => (
       label={"Nickname:"}
       name={"nickname"}
       value={props.nickname}
+      valid={props.validNickname}
       handleChangeFunction={props.handleChangeFunction}
       info={"Max 16 chars. [a-zA-Z0-9,.?!_- ]"}
     />
@@ -38,12 +40,14 @@ type TextInputProps = {
   value: string;
   handleChangeFunction: ChangeEventFunction;
   info?: string;
+  valid?: boolean;
 };
 
 const TextInput = (props: TextInputProps) => (
   <div className="text-input-wrapper">
     <label htmlFor={props.name}>{props.label}</label>
     <input
+      className={`text-input ${props.valid === false ? "invalid" : ""}`}
       type="text"
       name={props.name}
       value={props.value}

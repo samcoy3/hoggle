@@ -1,6 +1,8 @@
 import React, { Component, FormEvent, ChangeEvent, MouseEvent } from "react";
 import "./App.css";
 
+import { validNickname } from "./helpers";
+
 import Landing from "./Landing";
 import Lobby from "./Lobby";
 import Game from "./Game";
@@ -17,12 +19,12 @@ export enum GameState {
   InGame,
 }
 
-type AppProps = {
-};
+type AppProps = {};
 
 type AppState = {
   gameState: GameState;
-  nickname: string;
+  nick: string;
+  validNick?: boolean;
   lobbyCode: string;
 };
 
@@ -31,7 +33,7 @@ class App extends Component<AppProps, AppState> {
     super(props);
     this.state = {
       gameState: GameState.InLanding,
-      nickname: "",
+      nick: "",
       lobbyCode: "",
     };
     this.handleTextChange = this.handleTextChange.bind(this);
@@ -43,7 +45,7 @@ class App extends Component<AppProps, AppState> {
     const { name, value } = event.target;
     switch (name) {
       case "nickname":
-        this.setState({ nickname: value });
+        this.setState({ nick: value, validNick: validNickname(value) });
         break;
       case "lobbyCode":
         this.setState({ lobbyCode: value });
@@ -56,7 +58,7 @@ class App extends Component<AppProps, AppState> {
 
   joinLobby(event: FormEvent<HTMLFormElement>): void {
     event.preventDefault();
-    const nickname = this.state.nickname;
+    const nickname = this.state.nick;
     const lobbyCode = this.state.lobbyCode;
     alert(`Welcome to lobby ${lobbyCode}, ${nickname}`);
     // TODO: join lobby
@@ -69,7 +71,7 @@ class App extends Component<AppProps, AppState> {
 
   render() {
     const gameState: GameState = this.state.gameState;
-    const nickname: string = this.state.nickname;
+    const nickname: string = this.state.nick;
     const lobbyCode: string = this.state.lobbyCode;
     return (
       <div className="App">
@@ -85,6 +87,7 @@ class App extends Component<AppProps, AppState> {
                 return (
                   <Landing
                     nickname={nickname}
+                    validNickname={this.state.validNick}
                     lobbyCode={lobbyCode}
                     handleChangeFunction={this.handleTextChange}
                     joinLobbyFunction={this.joinLobby}
