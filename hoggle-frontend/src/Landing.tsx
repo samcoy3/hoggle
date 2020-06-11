@@ -8,8 +8,9 @@ import {
 
 type LandingProps = {
   nickname: string;
-  validNickname?: boolean;
   lobbyCode: string;
+  valid: { nickname?: boolean; lobbyCode?: boolean };
+  errors: { nickname?: string; lobbyCode?: string };
   handleChangeFunction: ChangeEventFunction;
   joinLobbyFunction: SubmitEventFunction;
   createLobbyFunction: ClickEventFunction;
@@ -17,11 +18,14 @@ type LandingProps = {
 
 const Landing = (props: LandingProps) => (
   <div className="landing">
+    {props.errors.nickname ? (
+      <p className="error">{props.errors.nickname}</p>
+    ) : null}
     <TextInput
       label={"Nickname:"}
       name={"nickname"}
       value={props.nickname}
-      valid={props.validNickname}
+      valid={props.valid.nickname}
       handleChangeFunction={props.handleChangeFunction}
       info={"Max 16 chars. [a-zA-Z0-9,.?!_- ]"}
     />
@@ -38,9 +42,9 @@ type TextInputProps = {
   label: string;
   name: string;
   value: string;
+  valid?: boolean;
   handleChangeFunction: ChangeEventFunction;
   info?: string;
-  valid?: boolean;
 };
 
 const TextInput = (props: TextInputProps) => (

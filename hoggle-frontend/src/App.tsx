@@ -23,9 +23,10 @@ type AppProps = {};
 
 type AppState = {
   gameState: GameState;
-  nick: string;
-  validNick?: boolean;
+  nickname: string;
   lobbyCode: string;
+  valid: { nickname?: boolean; lobbyCode?: boolean };
+  errors: { nickname?: string; lobbyCode?: string };
 };
 
 class App extends Component<AppProps, AppState> {
@@ -33,8 +34,10 @@ class App extends Component<AppProps, AppState> {
     super(props);
     this.state = {
       gameState: GameState.InLanding,
-      nick: "",
+      nickname: "",
       lobbyCode: "",
+      valid: {},
+      errors: {},
     };
     this.handleTextChange = this.handleTextChange.bind(this);
     this.joinLobby = this.joinLobby.bind(this);
@@ -43,9 +46,14 @@ class App extends Component<AppProps, AppState> {
 
   handleTextChange(event: ChangeEvent<HTMLInputElement>): void {
     const { name, value } = event.target;
+    let valid = this.state.valid;
+    let errors = this.state.errors;
     switch (name) {
       case "nickname":
-        this.setState({ nick: value, validNick: validNickname(value) });
+        this.setState({ nickname: value });
+        let validity = validNickname(value);
+        valid.nickname = validity.valid;
+        errors.nickname = validity.errors;
         break;
       case "lobbyCode":
         this.setState({ lobbyCode: value });
@@ -54,11 +62,12 @@ class App extends Component<AppProps, AppState> {
         alert("Unknown text field name: " + name);
         break;
     }
+    this.setState({ valid: valid, errors: errors });
   }
 
   joinLobby(event: FormEvent<HTMLFormElement>): void {
     event.preventDefault();
-    const nickname = this.state.nick;
+    const nickname = this.state.nickname;
     const lobbyCode = this.state.lobbyCode;
     alert(`Welcome to lobby ${lobbyCode}, ${nickname}`);
     // TODO: join lobby
@@ -70,9 +79,6 @@ class App extends Component<AppProps, AppState> {
   }
 
   render() {
-    const gameState: GameState = this.state.gameState;
-    const nickname: string = this.state.nick;
-    const lobbyCode: string = this.state.lobbyCode;
     return (
       <div className="App">
         <header className="App-header">
@@ -82,13 +88,14 @@ class App extends Component<AppProps, AppState> {
         </header>
         <body className="App-body">
           {(() => {
-            switch (gameState) {
+            switch (this.state.gameState) {
               case GameState.InLanding:
                 return (
                   <Landing
-                    nickname={nickname}
-                    validNickname={this.state.validNick}
-                    lobbyCode={lobbyCode}
+                    nickname={this.state.nickname}
+                    lobbyCode={this.state.lobbyCode}
+                    valid={this.state.valid}
+                    errors={this.state.errors}
                     handleChangeFunction={this.handleTextChange}
                     joinLobbyFunction={this.joinLobby}
                     createLobbyFunction={this.createLobby}
