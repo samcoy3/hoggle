@@ -1,7 +1,7 @@
 import React, { Component, FormEvent, ChangeEvent, MouseEvent } from "react";
 import "./App.css";
 
-import { validNickname } from "./helpers";
+import { validateNickname, joinLobby } from "./helpers";
 
 import Landing from "./Landing";
 import Lobby from "./Lobby";
@@ -17,6 +17,7 @@ export enum GameState {
   InLanding,
   InLobby,
   InGame,
+  JoiningLobby,
 }
 
 type AppProps = {};
@@ -27,6 +28,7 @@ type AppState = {
   lobbyCode: string;
   valid: { nickname?: boolean; lobbyCode?: boolean };
   errors: { nickname?: string; lobbyCode?: string };
+  playerId: number;
 };
 
 class App extends Component<AppProps, AppState> {
@@ -38,6 +40,7 @@ class App extends Component<AppProps, AppState> {
       lobbyCode: "",
       valid: {},
       errors: {},
+      playerId: -1,
     };
     this.handleTextChange = this.handleTextChange.bind(this);
     this.joinLobby = this.joinLobby.bind(this);
@@ -46,14 +49,19 @@ class App extends Component<AppProps, AppState> {
 
   handleTextChange(event: ChangeEvent<HTMLInputElement>): void {
     const { name, value } = event.target;
-    let valid = this.state.valid;
-    let errors = this.state.errors;
     switch (name) {
       case "nickname":
-        this.setState({ nickname: value });
-        let validity = validNickname(value);
-        valid.nickname = validity.valid;
-        errors.nickname = validity.errors;
+        let valid = this.state.valid;
+        let errors = this.state.errors;
+        const nicknameReturn = validateNickname(value);
+        if (nicknameReturn === true) {
+          valid.nickname = true;
+          errors.nickname = "";
+        } else {
+          valid.nickname = false;
+          errors.nickname = nicknameReturn;
+        }
+        this.setState({ nickname: value, valid: valid, errors: errors });
         break;
       case "lobbyCode":
         this.setState({ lobbyCode: value });
@@ -62,15 +70,44 @@ class App extends Component<AppProps, AppState> {
         alert("Unknown text field name: " + name);
         break;
     }
-    this.setState({ valid: valid, errors: errors });
   }
 
   joinLobby(event: FormEvent<HTMLFormElement>): void {
     event.preventDefault();
     const nickname = this.state.nickname;
-    const lobbyCode = this.state.lobbyCode;
-    alert(`Welcome to lobby ${lobbyCode}, ${nickname}`);
-    // TODO: join lobby
+    const lobbycode = this.state.lobbyCode;
+    let valid = this.state.valid;
+    let errors = this.state.errors;
+
+    const joinResponse = joinLobby(nickname, lobbycode);
+    if (typeof joinResponse === "number") {
+      valid.nickname = true;
+      valid.lobbyCode = true;
+      errors.nickname = "";
+      errors.lobbyCode = "";
+      this.setState({
+        playerId: joinResponse,
+        gameState: GameState.JoiningLobby,
+        valid: valid,
+        errors: errors,
+      });
+      // TODO get lobby info
+      this.setState({ gameState: GameState.InLobby });
+    } else {
+      errors.nickname = joinResponse.nickname;
+      errors.lobbyCode = joinResponse.lobbyCode;
+      if (errors.nickname === "") {
+        valid.nickname = true;
+      } else {
+        valid.nickname = false;
+      }
+      if (errors.lobbyCode === "") {
+        valid.lobbyCode = true;
+      } else {
+        valid.lobbyCode = false;
+      }
+      this.setState({ valid: valid, errors: errors });
+    }
   }
 
   createLobby(): void {

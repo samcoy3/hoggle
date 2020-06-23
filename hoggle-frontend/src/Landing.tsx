@@ -18,8 +18,11 @@ type LandingProps = {
 
 const Landing = (props: LandingProps) => (
   <div className="landing">
-    {props.errors.nickname ? (
+    {props.valid.nickname === false ? (
       <p className="error">{props.errors.nickname}</p>
+    ) : null}
+    {props.valid.lobbyCode === false ? (
+      <p className="error">{props.errors.lobbyCode}</p>
     ) : null}
     <TextInput
       label={"Nickname:"}
