@@ -5,12 +5,13 @@ import {
   SubmitEventFunction,
   ClickEventFunction,
 } from "./App";
+import { JoinError } from "./helpers";
 
 type LandingProps = {
   nickname: string;
   lobbyCode: string;
   valid: { nickname?: boolean; lobbyCode?: boolean };
-  errors: { nickname?: string; lobbyCode?: string };
+  errors: JoinError;
   handleChangeFunction: ChangeEventFunction;
   joinLobbyFunction: SubmitEventFunction;
   createLobbyFunction: ClickEventFunction;
@@ -18,11 +19,8 @@ type LandingProps = {
 
 const Landing = (props: LandingProps) => (
   <div className="landing">
-    {props.valid.nickname === false ? (
-      <p className="error">{props.errors.nickname}</p>
-    ) : null}
-    {props.valid.lobbyCode === false ? (
-      <p className="error">{props.errors.lobbyCode}</p>
+    {props.valid.nickname === false || props.valid.lobbyCode === false ? (
+      <ErrorList errors={props.errors} />
     ) : null}
     <TextInput
       label={"Nickname:"}
@@ -37,9 +35,24 @@ const Landing = (props: LandingProps) => (
       handleChangeFunction={props.handleChangeFunction}
       joinLobbyFunction={props.joinLobbyFunction}
     />
+    <p>or</p>
     <button onClick={props.createLobbyFunction}>Create New Lobby</button>
   </div>
 );
+
+type ErrorListProps = {
+  errors: JoinError;
+};
+
+const ErrorList = (props: ErrorListProps) => {
+  const errors = props.errors.nickname.concat(props.errors.lobbyCode);
+  const listItems = errors.map((error) => <li>{error}</li>);
+  return (
+    <div className="join-error-wrapper">
+      <ul className="error">{listItems}</ul>
+    </div>
+  );
+};
 
 type TextInputProps = {
   label: string;

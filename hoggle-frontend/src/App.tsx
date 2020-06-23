@@ -1,7 +1,7 @@
 import React, { Component, FormEvent, ChangeEvent, MouseEvent } from "react";
 import "./App.css";
 
-import { validateNickname, joinLobby } from "./helpers";
+import { validateNickname, joinLobby, JoinError } from "./helpers";
 
 import Landing from "./Landing";
 import Lobby from "./Lobby";
@@ -27,7 +27,7 @@ type AppState = {
   nickname: string;
   lobbyCode: string;
   valid: { nickname?: boolean; lobbyCode?: boolean };
-  errors: { nickname?: string; lobbyCode?: string };
+  errors: { nickname: string[]; lobbyCode: string[] };
   playerId: number;
 };
 
@@ -39,7 +39,7 @@ class App extends Component<AppProps, AppState> {
       nickname: "",
       lobbyCode: "",
       valid: {},
-      errors: {},
+      errors: { nickname: [], lobbyCode: [] },
       playerId: -1,
     };
     this.handleTextChange = this.handleTextChange.bind(this);
@@ -56,7 +56,7 @@ class App extends Component<AppProps, AppState> {
         const nicknameReturn = validateNickname(value);
         if (nicknameReturn === true) {
           valid.nickname = true;
-          errors.nickname = "";
+          errors.nickname = [];
         } else {
           valid.nickname = false;
           errors.nickname = nicknameReturn;
@@ -83,8 +83,8 @@ class App extends Component<AppProps, AppState> {
     if (typeof joinResponse === "number") {
       valid.nickname = true;
       valid.lobbyCode = true;
-      errors.nickname = "";
-      errors.lobbyCode = "";
+      errors.nickname = [];
+      errors.lobbyCode = [];
       this.setState({
         playerId: joinResponse,
         gameState: GameState.JoiningLobby,
@@ -96,12 +96,12 @@ class App extends Component<AppProps, AppState> {
     } else {
       errors.nickname = joinResponse.nickname;
       errors.lobbyCode = joinResponse.lobbyCode;
-      if (errors.nickname === "") {
+      if (errors.nickname === []) {
         valid.nickname = true;
       } else {
         valid.nickname = false;
       }
-      if (errors.lobbyCode === "") {
+      if (errors.lobbyCode === []) {
         valid.lobbyCode = true;
       } else {
         valid.lobbyCode = false;

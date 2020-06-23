@@ -5,51 +5,57 @@ export enum LobbyState {
 
 export type Lobby = {
   lobbyState: LobbyState;
-  players: [string];
+  players: string[];
   changeAt: 0 | Date;
 };
 
-type JoinError = {
-  nickname: string;
-  lobbyCode: string;
+export type JoinError = {
+  nickname: string[];
+  lobbyCode: string[];
 };
 
-export function validateNickname(nickname: string): true | string {
+export function validateNickname(nickname: string): true | string[] {
   const maxLength = 16;
-  const regex = new RegExp(/^[a-zA-Z0-9,.?!\-_ ]*$/);
+  const regex = new RegExp(/^[a-zA-Z0-9,.?!\-_ ]+$/);
 
   if (!nickname) {
-    return "Please enter a nickname";
+    return ["Please enter a nickname"];
   }
 
-  var errorString = "";
+  var errors: string[] = [];
   if (nickname.length > maxLength) {
-    errorString += "Nickname is too long\n";
+    errors.push("Nickname is too long");
   }
   if (!regex.test(nickname)) {
-    errorString += "Nickname uses invalid characters\n";
+    errors.push("Nickname uses invalid characters");
   }
 
-  if (errorString) {
-    return errorString.slice(0, -1);
+  if (errors.length > 0) {
+    return errors;
   }
 
   return true;
 }
 
-function validateLobbyCode(lobbyCode: string): true | string {
-  const regex = new RegExp(/^[a-zA-Z]{4}$/);
+function validateLobbyCode(lobbyCode: string): true | string[] {
+  const regex = new RegExp(/^[a-zA-Z]+$/);
 
   if (!lobbyCode) {
-    return "Please enter a lobby code";
+    return ["Please enter a lobby code"];
   }
 
+  var errors: string[] = [];
+  if (lobbyCode.length !== 4) {
+    errors.push("Lobby code must be 4 characters long");
+  }
   if (!regex.test(lobbyCode)) {
-    return "Lobby code should be 4 letters";
+    errors.push("Lobby code must only contain letters");
   }
 
-  if (!lobbyExists(lobbyCode)) {
-    return "Lobby not found";
+  if (errors.length > 0) {
+    return errors;
+  } else if (!lobbyExists(lobbyCode)) {
+    return ["Lobby not found"];
   }
 
   return true;
@@ -73,18 +79,18 @@ export function joinLobby(
     let playerID = 1;
     switch (playerID) {
       case -1:
-        return { nickname: "Nickname already in use", lobbyCode: "" };
+        return { nickname: ["Nickname already in use"], lobbyCode: [] };
       default:
         return playerID;
     }
   }
 
   // Else return error message(s)
-  let errors = { nickname: "", lobbyCode: "" };
-  if (typeof nicknameReturn === "string") {
+  let errors: JoinError = { nickname: [], lobbyCode: [] };
+  if (nicknameReturn !== true) {
     errors.nickname = nicknameReturn;
   }
-  if (typeof lobbyCodeReturn === "string") {
+  if (lobbyCodeReturn !== true) {
     errors.lobbyCode = lobbyCodeReturn;
   }
   return errors;
