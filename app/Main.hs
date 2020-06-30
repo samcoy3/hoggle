@@ -1,10 +1,20 @@
 module Main where
 
-import Boggle.Board
-import Boggle.Scoring
+import Data.Map (empty)
+
+import Control.Concurrent.STM
+import Network.Wai.Handler.Warp (run)
 
 import Web.API
 import Web.Types
 
 main :: IO ()
-main = undefined
+main = do
+  let port = 9091
+  startingUserMap <-
+    atomically . newTVar $ empty
+  startingLobbyMap <-
+    atomically . newTVar $ empty
+  run port . app $
+    ServerState {userMap = startingUserMap, lobbyMap = startingLobbyMap}
+

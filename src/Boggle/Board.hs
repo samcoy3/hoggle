@@ -48,6 +48,7 @@ tileBag =
         ("Z", 1)
       ]
 
+-- TODO: Use more bags if we need it.
 randomBoard :: Int -> IO Board
 randomBoard size = do
   tiles <- randomTiles
