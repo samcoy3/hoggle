@@ -17,6 +17,7 @@ import Control.Concurrent.STM.TVar
     modifyTVar,
   )
 import Control.Exception (bracket)
+import Control.Monad
 import Control.Monad.IO.Class (liftIO)
 import Control.Monad.STM (atomically)
 import Control.Monad.Trans.Reader (ReaderT, ask, runReaderT)
@@ -29,6 +30,7 @@ import Data.Map (Map)
 import Data.UUID
 import Data.UUID.V4
 import GHC.Generics (Generic)
+import System.Random
 
 import Web.API
 import Web.Types
@@ -130,7 +132,7 @@ newSettings :: LobbySettings
 newSettings = LobbySettings {size = 5, timeInSeconds = 180}
 
 randomLobbyCode :: IO LobbyCode
-randomLobbyCode = return "AAAA"
+randomLobbyCode = mapM randomRIO $ replicate 4 ('A', 'Z')
 
 addPlayer :: UUID -> Text -> Lobby -> Lobby
 addPlayer uuid nick lobby =
