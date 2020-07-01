@@ -7,14 +7,11 @@ import Network.Wai.Handler.Warp (run)
 
 import Web.API
 import Web.Types
+import Web.Server
 
 main :: IO ()
 main = do
   let port = 9091
-  startingUserMap <-
-    atomically . newTVar $ empty
-  startingLobbyMap <-
-    atomically . newTVar $ empty
-  run port . app $
-    ServerState {userMap = startingUserMap, lobbyMap = startingLobbyMap}
+  lobbies <- atomically $ newTVar []
+  run port . app $ lobbies
 

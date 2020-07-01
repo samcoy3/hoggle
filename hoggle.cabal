@@ -4,7 +4,7 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 91e5882cfff627a06d9df61cda59382509a48a8cfb47cd45f1f124f35e028f6a
+-- hash: acd8756e8cb6d97c9b555ec7105f5b3c421a03782e9ba844064348ee7ace48c6
 
 name:           hoggle
 version:        0.1.0.0
@@ -40,6 +40,7 @@ library
       aeson >=1.5
     , base >=4.7 && <5
     , containers >=0.6
+    , http-api-data
     , primitive >=0.7
     , random >=1.1
     , servant >=0.17
@@ -65,6 +66,7 @@ executable hoggle-exe
     , base >=4.7 && <5
     , containers >=0.6
     , hoggle
+    , http-api-data
     , primitive >=0.7
     , random >=1.1
     , servant >=0.17
@@ -91,6 +93,7 @@ test-suite hoggle-test
     , base >=4.7 && <5
     , containers >=0.6
     , hoggle
+    , http-api-data
     , primitive >=0.7
     , random >=1.1
     , servant >=0.17

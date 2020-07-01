@@ -23,6 +23,7 @@ dependencies:
 - aeson >= 1.5
 - base >= 4.7 && < 5
 - containers >= 0.6
+- http-api-data
 - primitive >= 0.7
 - random >= 1.1
 - servant >= 0.17

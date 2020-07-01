@@ -30,18 +30,18 @@ import Web.Types
 type AppM = ReaderT ServerState Handler
 
 type LobbyAPI =
-  "new" :> QueryParam "nick" Text :> Post '[JSON] UUID
-    :<|> "join" :> QueryParam "nick" Text :> QueryParam "lobbycode" String :> Post '[JSON] UUID
-    :<|> "info" :> QueryParam "uuid" UUID :> Post '[JSON] Lobby
-    :<|> "settings" :> QueryParam "uuid" UUID :> QueryParam "size" Int :> QueryParam "time" Int :> PostNoContent
-    :<|> "startgame" :> QueryParam "uuid" UUID :> PostNoContent
-    :<|> "leave" :> QueryParam "uuid" UUID :> DeleteNoContent
+  "new" :> ReqBody '[FormUrlEncoded] NameRequest :> Post '[JSON] UUID
+    :<|> "join" :> ReqBody '[FormUrlEncoded] JoinRequest :> Post '[JSON] UUID
+    :<|> "info" :> ReqBody '[FormUrlEncoded] UUIDRequest :> Post '[JSON] RedactedLobby
+    :<|> "settings" :> ReqBody '[FormUrlEncoded] SettingsRequest :> Post '[JSON] NoContent
+    -- :<|> "startgame" :> QueryParam "uuid" UUID :> PostNoContent
+    -- :<|> "leave" :> QueryParam "uuid" UUID :> DeleteNoContent
 
 type GameAPI =
   "sendword" :> QueryParam "uuid" UUID :> QueryParam "word" String :> PostNoContent
   :<|> "removeword" :> QueryParam "uuid" UUID :> QueryParam "word" String :> PostNoContent
 
-type ServerAPI = "lobby" :> LobbyAPI :<|> "game" :> GameAPI
+type ServerAPI = "lobby" :> LobbyAPI -- :<|> "game" :> GameAPI
 
 api :: Proxy ServerAPI
 api = Proxy

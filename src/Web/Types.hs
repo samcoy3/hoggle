@@ -1,4 +1,6 @@
 {-# LANGUAGE DeriveGeneric #-}
+{-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE RecordWildCards #-}
 
 module Web.Types where
 
@@ -14,6 +16,7 @@ import Boggle.Board
 import GHC.Generics (Generic)
 
 import Control.Concurrent.STM.TVar
+import Web.Internal.FormUrlEncoded
 
 type UserId = UUID
 type Submission = String
@@ -21,25 +24,20 @@ type SubmissionMap = Map UserId (Set Submission)
 type ScoreMap = Map Submission Int
 
 type LobbyCode = String
-type LobbyMap = Map LobbyCode Lobby
-type UserMap = Map UserId LobbyCode
 
-data ServerState = ServerState
-  { userMap :: TVar UserMap,
-    lobbyMap :: TVar LobbyMap
-  }
+type ServerState = TVar [Lobby]
 
 data LobbyState
-  = InLobby
-  | StartingGame UTCTime
-  | InGame UTCTime Board SubmissionMap
-  deriving (Generic, Show)
+  = InLobby'
+  | StartingGame' UTCTime
+  | InGame' UTCTime Board SubmissionMap
+  deriving (Generic, Show, Eq)
 
 data LobbySettings = LobbySettings
   { size :: Int,
     timeInSeconds :: Int
   }
-  deriving (Generic, Show)
+  deriving (Generic, Show, Eq)
 
 data Lobby = Lobby
   { host :: UserId,
@@ -50,33 +48,70 @@ data Lobby = Lobby
     joinCode :: LobbyCode,
     previousRoundScores :: Maybe (SubmissionMap, ScoreMap)
   }
-  deriving (Generic, Show)
+  deriving (Generic, Show, Eq)
 
 instance ToJSON LobbyState
 instance ToJSON LobbySettings
-instance FromJSON LobbySettings
 instance ToJSON Lobby
+instance FromJSON LobbySettings
 
---- INIT ---
-newLobby :: UUID -> Text -> LobbyCode -> Lobby
-newLobby uuid nick lobbyCode =
-  Lobby
-    { host = uuid,
-      players = [uuid],
-      nicknames = M.singleton uuid nick,
-      settings = newSettings,
-      lobbyState = InLobby,
-      joinCode = lobbyCode,
-      previousRoundScores = Nothing
-    }
+instance FromForm LobbySettings
 
-newSettings :: LobbySettings
-newSettings = LobbySettings {size = 5, timeInSeconds = 180}
+---- Redacted State ----
+data RedactedLobbyState
+  = InLobby
+  | StartingGame UTCTime
+  | InGame UTCTime Board (Set Submission)
+  deriving (Generic)
 
---- CHANGE PLAYERS ---
-addPlayer :: UUID -> Text -> Lobby -> Lobby
-addPlayer uuid nick lobby =
-  lobby
-    { players = players lobby ++ [uuid],
-      nicknames = M.insert uuid nick (nicknames lobby)
-    }
+instance ToJSON RedactedLobbyState
+
+redactLobbyState :: UUID -> LobbyState -> RedactedLobbyState
+redactLobbyState uuid (InGame' endTime board submissionMap) =
+  InGame endTime board (submissionMap M.! uuid)
+redactLobbyState _ InLobby' = InLobby
+redactLobbyState _ (StartingGame' t) = StartingGame t
+
+data RedactedLobby = RedactedLobby
+  { hostName :: Text,
+    playerNames :: [Text],
+    currentSettings :: LobbySettings,
+    state :: RedactedLobbyState,
+    lobbyCode :: LobbyCode,
+    lastRoundScores :: Maybe (Map Text (Set Submission), ScoreMap)
+  }
+  deriving (Generic)
+
+instance ToJSON RedactedLobby
+
+redactLobby :: UUID -> Lobby -> RedactedLobby
+redactLobby uuid Lobby{..} =
+  RedactedLobby {hostName = nicknames M.! host,
+                 playerNames = fmap (nicknames M.!) players,
+                 currentSettings = settings,
+                 state = redactLobbyState uuid lobbyState,
+                 lobbyCode = joinCode,
+                 lastRoundScores = case previousRoundScores of
+                    Nothing -> Nothing
+                    Just (subMap, scoreMap) -> Just (M.mapKeys (nicknames M.!) subMap, scoreMap)
+                }
+
+---- Request Types ----
+data NameRequest = NameRequest {name :: Text} deriving (Generic)
+instance FromForm NameRequest
+
+data JoinRequest = JoinRequest {jrName :: Text, jrLobbyCode :: LobbyCode}
+instance FromForm JoinRequest where
+  fromForm f = JoinRequest
+    <$> parseUnique "name" f
+    <*> parseUnique "code" f
+
+data UUIDRequest = UUIDRequest {uuid :: UUID} deriving (Generic)
+instance FromForm UUIDRequest
+
+data SettingsRequest = SettingsRequest {srUUID :: UUID, srSize :: Int, srTimeInSeconds :: Int}
+instance FromForm SettingsRequest where
+  fromForm f = SettingsRequest
+    <$> parseUnique "uuid" f
+    <*> parseUnique "size" f
+    <*> parseUnique "timeInSeconds" f
