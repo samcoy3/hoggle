@@ -68,7 +68,9 @@ instance ToJSON RedactedLobbyState
 
 redactLobbyState :: UUID -> LobbyState -> RedactedLobbyState
 redactLobbyState uuid (InGame' endTime board submissionMap) =
-  InGame endTime board (submissionMap M.! uuid)
+  InGame endTime board $ if uuid `elem` (M.keys submissionMap)
+                            then (submissionMap M.! uuid)
+                            else S.empty
 redactLobbyState _ InLobby' = InLobby
 redactLobbyState _ (StartingGame' t) = StartingGame t
 
@@ -115,3 +117,9 @@ instance FromForm SettingsRequest where
     <$> parseUnique "uuid" f
     <*> parseUnique "size" f
     <*> parseUnique "timeInSeconds" f
+
+data WordRequest = WordRequest {wrUUID :: UUID, word :: String}
+instance FromForm WordRequest where
+  fromForm f = WordRequest
+    <$> parseUnique "uuid" f
+    <*> parseUnique "word" f

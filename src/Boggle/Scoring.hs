@@ -1,5 +1,4 @@
-module Boggle.Scoring
- (scoreWords)  where
+module Boggle.Scoring where
 
 import qualified Boggle.Board as B
 import Boggle.Board (Point, Board)
@@ -11,7 +10,7 @@ import Data.Maybe
 import System.IO.Unsafe
 
 wordList :: [String]
-wordList = map (filter (/= '\r')) . lines . unsafePerformIO . readFile $ "../resources/words.txt"
+wordList = map (filter (/= '\r')) . lines . unsafePerformIO . readFile $ "resources/words.txt"
 
 isWord :: String -> Bool
 isWord = flip elem wordList

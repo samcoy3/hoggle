@@ -34,14 +34,14 @@ type LobbyAPI =
     :<|> "join" :> ReqBody '[FormUrlEncoded] JoinRequest :> Post '[JSON] UUID
     :<|> "info" :> ReqBody '[FormUrlEncoded] UUIDRequest :> Post '[JSON] RedactedLobby
     :<|> "settings" :> ReqBody '[FormUrlEncoded] SettingsRequest :> Post '[JSON] NoContent
-    -- :<|> "startgame" :> QueryParam "uuid" UUID :> PostNoContent
-    -- :<|> "leave" :> QueryParam "uuid" UUID :> DeleteNoContent
+    :<|> "startgame" :> ReqBody '[FormUrlEncoded] UUIDRequest :> Post '[JSON] NoContent
+    :<|> "leave" :> ReqBody '[FormUrlEncoded] UUIDRequest :> Post '[JSON] NoContent
 
 type GameAPI =
-  "sendword" :> QueryParam "uuid" UUID :> QueryParam "word" String :> PostNoContent
-  :<|> "removeword" :> QueryParam "uuid" UUID :> QueryParam "word" String :> PostNoContent
+  "sendword" :> ReqBody '[FormUrlEncoded] WordRequest :> Post '[JSON] NoContent
+  :<|> "removeword" :> ReqBody '[FormUrlEncoded] WordRequest :> Post '[JSON] NoContent
 
-type ServerAPI = "lobby" :> LobbyAPI -- :<|> "game" :> GameAPI
+type ServerAPI = "lobby" :> LobbyAPI :<|> "game" :> GameAPI
 
 api :: Proxy ServerAPI
 api = Proxy
