@@ -4,7 +4,7 @@ import {
   ChangeEventFunction,
   SubmitEventFunction,
   ClickEventFunction,
-} from "./App";
+} from "./types";
 
 type LandingProps = {
   nickname: string;
@@ -47,7 +47,7 @@ const ErrorList = (props: ErrorListProps) => {
   const errors = props.errors.nickname
     .concat(props.errors.lobbyCode)
     .concat(props.errors.server);
-  const listItems = errors.map((error) => <li>{error}</li>);
+  const listItems = errors.map((error, i) => <li key={i}>{error}</li>);
   return (
     <div className="join-error-wrapper">
       <ul className="error">{listItems}</ul>

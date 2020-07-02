@@ -9,3 +9,17 @@
 .error {
   color: red;
 }
+
+section {
+  width: 100%;
+}
+
+.lobby-header {
+  display: flex;
+  flex-flow: row wrap;
+  justify-content: center;
+}
+
+.lobby-header * {
+  flex-grow: 1;
+}

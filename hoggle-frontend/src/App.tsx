@@ -1,25 +1,12 @@
 import React, { Component, FormEvent, ChangeEvent, MouseEvent } from "react";
-import { Async } from "react-async";
 import "./App.css";
 
-import { join, newLobby } from "./requests";
+import { join, newLobby, info } from "./requests";
+import { GameState, LobbyInfo } from "./types";
 
 import Landing from "./Landing";
 import Lobby from "./Lobby";
 import Game from "./Game";
-
-export type ChangeEventFunction = (
-  event: ChangeEvent<HTMLInputElement>
-) => void;
-export type SubmitEventFunction = (event: FormEvent<HTMLFormElement>) => void;
-export type ClickEventFunction = (event: MouseEvent<HTMLButtonElement>) => void;
-
-export enum GameState {
-  InLanding,
-  InLobby,
-  InGame,
-  JoiningLobby,
-}
 
 type AppProps = {};
 
@@ -30,6 +17,7 @@ type AppState = {
   valid: { nickname?: boolean; lobbyCode?: boolean; server?: boolean };
   errors: { nickname: string[]; lobbyCode: string[]; server: string[] };
   uuid: string;
+  lobby?: LobbyInfo;
 };
 
 class App extends Component<AppProps, AppState> {
@@ -48,10 +36,11 @@ class App extends Component<AppProps, AppState> {
     this.createLobby = this.createLobby.bind(this);
   }
 
-  validateNickname(nickname: string) {
+  validateNickname() {
     const maxLength = 16;
     const regex = new RegExp(/^[a-zA-Z0-9,.?!\-_ ]+$/);
 
+    const nickname = this.state.nickname;
     let valid = this.state.valid;
     let errors = this.state.errors;
     errors.nickname = [];
@@ -108,11 +97,10 @@ class App extends Component<AppProps, AppState> {
     const { name, value } = event.target;
     switch (name) {
       case "nickname":
-        this.setState({ nickname: value });
-        this.validateNickname(value);
+        this.setState({ nickname: value }, this.validateNickname);
         break;
       case "lobbyCode":
-        this.setState({ lobbyCode: value });
+        this.setState({ lobbyCode: value.toUpperCase() });
         break;
       default:
         alert("Unknown text field name: " + name);
@@ -120,68 +108,80 @@ class App extends Component<AppProps, AppState> {
     }
   }
 
+  handleUUIDReturn(response: { success: boolean; data: string }) {
+    let valid = this.state.valid;
+    let errors = this.state.errors;
+    errors.server = [];
+    if (response.success) {
+      valid.server = true;
+      this.setState({
+        gameState: GameState.InLobby,
+        uuid: response.data,
+        errors: errors,
+        valid: valid,
+      });
+      info(response.data).then((lobbyInfo: LobbyInfo) => {
+        console.log("hello");
+        this.setState({ lobby: lobbyInfo });
+      });
+    } else {
+      errors.server.push(response.data);
+      valid.server = false;
+      this.setState({ errors: errors, valid: valid });
+    }
+  }
+
   async joinLobby(event: FormEvent<HTMLFormElement>): Promise<void> {
     event.preventDefault();
-    this.validateNickname(this.state.nickname);
+    this.validateNickname();
     this.validateLobbyCode();
-
     let valid = this.state.valid;
-
     if (valid.nickname && valid.lobbyCode) {
-      let errors = this.state.errors;
-      errors.server = [];
-      let response = await join(this.state.nickname, this.state.lobbyCode);
-      alert(response.data);
-      if (response.success) {
-        valid.server = true;
-        this.setState({
-          gameState: GameState.InLobby,
-          uuid: response.data,
-          errors: errors,
-          valid: valid,
-        });
-      } else {
-        errors.server.push(response.data);
-        valid.server = false;
-        this.setState({ errors: errors, valid: valid });
-      }
+      join(this.state.nickname, this.state.lobbyCode).then((UUIDReturn) => {
+        this.handleUUIDReturn(UUIDReturn);
+      });
     }
   }
 
   async createLobby(): Promise<void> {
-    this.validateNickname(this.state.nickname);
+    this.validateNickname();
     let valid = this.state.valid;
     if (valid.nickname) {
-      let errors = this.state.errors;
-      errors.server = [];
-      let response = await newLobby(this.state.nickname);
-      alert(response.data)
-      if (response.success) {
-        valid.server = true;
-        this.setState({
-          gameState: GameState.InLobby,
-          uuid: response.data,
-          errors: errors,
-          valid: valid,
-        });
-      } else {
-        errors.server.push(response.data);
-        valid.server = false;
-        this.setState({ errors: errors,
-          valid: valid, });
-      }
+      newLobby(this.state.nickname).then((UUIDReturn) => {
+        this.handleUUIDReturn(UUIDReturn);
+      });
     }
   }
 
   render() {
     return (
       <div className="App">
-        <header className="App-header">
+        <div className="App-header">
           {/* <img src={logo} className="App-logo" alt="logo" /> */}
-          <h1>Hoggle</h1>
-          <h2>An Online Multiplayer Boggle Game</h2>
-        </header>
-        <body className="App-body">
+          {(() => {
+            switch (this.state.gameState) {
+              case GameState.InLanding:
+                return (
+                  <div>
+                    <h1>Hoggle</h1>
+                    <h2>An Online Multiplayer Boggle Game</h2>
+                  </div>
+                );
+              case GameState.InLobby:
+                return (
+                  <section className="lobby-header">
+                    <h1>{this.state.lobby?.lobbyCode}</h1>
+                    <h1> 1:45 </h1>
+                    <h1>{this.state.nickname}</h1>
+                  </section>
+                );
+              case GameState.InGame:
+              default:
+                return null;
+            }
+          })()}
+        </div>
+        <div className="App-body">
           {(() => {
             switch (this.state.gameState) {
               case GameState.InLanding:
@@ -204,7 +204,7 @@ class App extends Component<AppProps, AppState> {
                 return null;
             }
           })()}
-        </body>
+        </div>
       </div>
     );
   }
