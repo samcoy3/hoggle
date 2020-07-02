@@ -77,6 +77,19 @@ const info = async (uuid: string) => {
 };
 
 const toLobbyInfo = (json: LobbyResponse): LobbyInfo => {
+  let time;
+  let board;
+
+  if (json.state.contents instanceof Object) {
+    time = Date.parse(json.state.contents[0]);
+    board = [];
+    for (var i = 0; i < 25; i++) {
+      board.push(json.state.contents[1][i][1]);
+    }
+  } else if (json.state.contents) {
+    time = Date.parse(json.state.contents);
+  }
+
   return {
     currentSettings: json.currentSettings,
     hostName: json.hostName,
@@ -84,7 +97,21 @@ const toLobbyInfo = (json: LobbyResponse): LobbyInfo => {
     lobbyCode: json.lobbyCode,
     playerNames: json.playerNames,
     state: json.state.tag,
+    time: time,
+    board: board,
   };
 };
 
-export { newLobby, join, info };
+const start = async (uuid: string) => {
+  const data = qs.stringify({ uuid: uuid });
+  const response = await post(LOBBY_STARTGAME_ENDPOINT, data);
+  if (!response.ok) {
+    const errorMessage = await response.text();
+    alert(errorMessage);
+    return false;
+  } else {
+    return true;
+  }
+};
+
+export { newLobby, join, info, start };

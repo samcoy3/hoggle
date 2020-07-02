@@ -1,7 +1,7 @@
-import React, { Component, FormEvent, ChangeEvent, MouseEvent } from "react";
+import React, { Component, FormEvent, ChangeEvent } from "react";
 import "./App.css";
 
-import { join, newLobby, info } from "./requests";
+import { join, newLobby, info, start } from "./requests";
 import { GameState, LobbyInfo } from "./types";
 
 import Landing from "./Landing";
@@ -21,6 +21,7 @@ type AppState = {
 };
 
 class App extends Component<AppProps, AppState> {
+  fetchInterval?: NodeJS.Timeout;
   constructor(props: AppProps) {
     super(props);
     this.state = {
@@ -34,9 +35,10 @@ class App extends Component<AppProps, AppState> {
     this.handleTextChange = this.handleTextChange.bind(this);
     this.joinLobby = this.joinLobby.bind(this);
     this.createLobby = this.createLobby.bind(this);
+    this.startGame = this.startGame.bind(this);
   }
 
-  validateNickname() {
+  validateNickname(): boolean {
     const maxLength = 16;
     const regex = new RegExp(/^[a-zA-Z0-9,.?!\-_ ]+$/);
 
@@ -63,9 +65,10 @@ class App extends Component<AppProps, AppState> {
     }
 
     this.setState({ valid: valid, errors: errors });
+    return valid.nickname;
   }
 
-  validateLobbyCode() {
+  validateLobbyCode(): boolean {
     const regex = new RegExp(/^[a-zA-Z]+$/);
 
     const lobbyCode = this.state.lobbyCode;
@@ -91,6 +94,7 @@ class App extends Component<AppProps, AppState> {
     }
 
     this.setState({ valid: valid, errors: errors });
+    return valid.lobbyCode;
   }
 
   handleTextChange(event: ChangeEvent<HTMLInputElement>): void {
@@ -114,16 +118,15 @@ class App extends Component<AppProps, AppState> {
     errors.server = [];
     if (response.success) {
       valid.server = true;
-      this.setState({
-        gameState: GameState.InLobby,
-        uuid: response.data,
-        errors: errors,
-        valid: valid,
-      });
-      info(response.data).then((lobbyInfo: LobbyInfo) => {
-        console.log("hello");
-        this.setState({ lobby: lobbyInfo });
-      });
+      this.setState(
+        {
+          gameState: GameState.InLobby,
+          uuid: response.data,
+          errors: errors,
+          valid: valid,
+        },
+        this.startFetchLobbyLoop
+      );
     } else {
       errors.server.push(response.data);
       valid.server = false;
@@ -131,83 +134,100 @@ class App extends Component<AppProps, AppState> {
     }
   }
 
-  async joinLobby(event: FormEvent<HTMLFormElement>): Promise<void> {
+  joinLobby(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    this.validateNickname();
-    this.validateLobbyCode();
-    let valid = this.state.valid;
-    if (valid.nickname && valid.lobbyCode) {
+    if (this.validateNickname() && this.validateLobbyCode()) {
       join(this.state.nickname, this.state.lobbyCode).then((UUIDReturn) => {
         this.handleUUIDReturn(UUIDReturn);
       });
     }
   }
 
-  async createLobby(): Promise<void> {
-    this.validateNickname();
-    let valid = this.state.valid;
-    if (valid.nickname) {
+  createLobby() {
+    if (this.validateNickname()) {
       newLobby(this.state.nickname).then((UUIDReturn) => {
         this.handleUUIDReturn(UUIDReturn);
       });
     }
   }
 
-  render() {
-    return (
-      <div className="App">
-        <div className="App-header">
-          {/* <img src={logo} className="App-logo" alt="logo" /> */}
-          {(() => {
-            switch (this.state.gameState) {
-              case GameState.InLanding:
+  startFetchLobbyLoop() {
+    this.getLobby();
+    this.fetchInterval = setInterval(this.getLobby.bind(this), 1000);
+  }
+
+  getLobby() {
+    info(this.state.uuid).then((lobbyInfo: LobbyInfo) => {
+      this.setState({ lobby: lobbyInfo });
+    });
+  }
+
+  startGame() {
+    start(this.state.uuid);
+  }
+
+  render = () => (
+    <div className="App">
+      <div className="App-header">
+        {/* <img src={logo} className="App-logo" alt="logo" /> */}
+        {(() => {
+          switch (this.state.gameState) {
+            case GameState.InLanding:
+              return (
+                <div>
+                  <h1>Hoggle</h1>
+                  <h2>An Online Multiplayer Boggle Game</h2>
+                </div>
+              );
+            case GameState.InLobby:
+              return (
+                <section className="lobby-header">
+                  <h1>{this.state.lobby?.lobbyCode}</h1>
+                  <h1>{this.state.nickname}</h1>
+                </section>
+              );
+            case GameState.InGame:
+            default:
+              return null;
+          }
+        })()}
+      </div>
+      <div className="App-body">
+        {(() => {
+          switch (this.state.gameState) {
+            case GameState.InLanding:
+              return (
+                <Landing
+                  nickname={this.state.nickname}
+                  lobbyCode={this.state.lobbyCode}
+                  valid={this.state.valid}
+                  errors={this.state.errors}
+                  handleChangeFunction={this.handleTextChange}
+                  joinLobbyFunction={this.joinLobby}
+                  createLobbyFunction={this.createLobby}
+                />
+              );
+            case GameState.InLobby:
+              if (!this.state.lobby) {
+                return <h1>Loading</h1>;
+              } else {
                 return (
-                  <div>
-                    <h1>Hoggle</h1>
-                    <h2>An Online Multiplayer Boggle Game</h2>
-                  </div>
-                );
-              case GameState.InLobby:
-                return (
-                  <section className="lobby-header">
-                    <h1>{this.state.lobby?.lobbyCode}</h1>
-                    <h1> 1:45 </h1>
-                    <h1>{this.state.nickname}</h1>
-                  </section>
-                );
-              case GameState.InGame:
-              default:
-                return null;
-            }
-          })()}
-        </div>
-        <div className="App-body">
-          {(() => {
-            switch (this.state.gameState) {
-              case GameState.InLanding:
-                return (
-                  <Landing
+                  <Lobby
+                    lobbyInfo={this.state.lobby}
                     nickname={this.state.nickname}
-                    lobbyCode={this.state.lobbyCode}
-                    valid={this.state.valid}
-                    errors={this.state.errors}
-                    handleChangeFunction={this.handleTextChange}
-                    joinLobbyFunction={this.joinLobby}
-                    createLobbyFunction={this.createLobby}
+                    startGameFunction={this.startGame}
                   />
                 );
-              case GameState.InLobby:
-                return <Lobby />;
-              case GameState.InGame:
-                return <Game />;
-              default:
-                return null;
-            }
-          })()}
-        </div>
+              }
+            case GameState.InGame:
+              return <Game />;
+            default:
+              return null;
+          }
+        })()}
       </div>
-    );
-  }
+    </div>
+  );
 }
 
 export default App;

@@ -23,3 +23,13 @@ section {
 .lobby-header * {
   flex-grow: 1;
 }
+
+.board-row {
+  display: flex;
+  flex-flow: row wrap;
+  justify-content: center;
+}
+
+.board-row * {
+  flex-grow: 1;
+}
