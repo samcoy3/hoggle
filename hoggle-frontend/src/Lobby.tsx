@@ -8,18 +8,23 @@ type LobbyProps = {
   startGameFunction: ClickEventFunction;
 };
 
+// For testing board css
+// type LobbyProps = {
+//   lobbyInfo: { board: string[]; hostName: string; playerNames: string[] };
+//   nickname: string;
+//   startGameFunction: ClickEventFunction;
+// };
+
 const Lobby = (props: LobbyProps) => {
+  const letters = props.lobbyInfo.board;
   return (
     <div className="Lobby">
       {props.nickname === props.lobbyInfo.hostName ? (
         <button onClick={props.startGameFunction}>Start Game</button>
       ) : null}
       <PlayerList players={props.lobbyInfo.playerNames} />
-      {props.lobbyInfo.board ? (
-        <Board
-          letters={props.lobbyInfo.board}
-          size={props.lobbyInfo.currentSettings.size}
-        />
+      {letters ? (
+        <Board letters={letters} size={Math.sqrt(letters.length)} />
       ) : null}
     </div>
   );
@@ -53,7 +58,11 @@ const Board = (props: BoardProps) => {
     }
     return rows;
   };
-  return <section>{getRows()}</section>;
+  return (
+    <div className="board">
+      <div className="board-contents">{getRows()}</div>
+    </div>
+  );
 };
 
 type RowProps = {
@@ -61,8 +70,16 @@ type RowProps = {
 };
 
 const Row = (props: RowProps) => {
-  const getLetters = props.letters.map((letter, i) => <h1 key={i}>{letter}</h1>);
-  return <section className="board-row">{getLetters}</section>;
+  const getLetters = props.letters.map((letter, i) => <Tile letter={letter} />);
+  return <div className="board-row">{getLetters}</div>;
+};
+
+type TileProps = {
+  letter: string;
+};
+
+const Tile = (props: TileProps) => {
+  return <div className="tile">{props.letter}</div>;
 };
 
 export default Lobby;

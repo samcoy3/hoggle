@@ -219,6 +219,44 @@ class App extends Component<AppProps, AppState> {
                   />
                 );
               }
+              // For testing board css
+              // return (
+              //   <Lobby
+              //     lobbyInfo={{
+              //       board: [
+              //         "A",
+              //         "B",
+              //         "C",
+              //         "D",
+              //         "E",
+              //         "F",
+              //         "G",
+              //         "H",
+              //         "I",
+              //         "J",
+              //         "K",
+              //         "L",
+              //         "M",
+              //         "N",
+              //         "O",
+              //         "P",
+              //         "QU",
+              //         "R",
+              //         "S",
+              //         "T",
+              //         "U",
+              //         "V",
+              //         "W",
+              //         "X",
+              //         "Y"
+              //       ],
+              //       hostName: "steve",
+              //       playerNames: [],
+              //     }}
+              //     nickname={"steve"}
+              //     startGameFunction={this.startGame}
+              //   />
+              // );
             case GameState.InGame:
               return <Game />;
             default:
