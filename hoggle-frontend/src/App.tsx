@@ -25,7 +25,7 @@ class App extends Component<AppProps, AppState> {
   constructor(props: AppProps) {
     super(props);
     this.state = {
-      gameState: GameState.InLanding,
+      gameState: GameState.InGame,
       nickname: "",
       lobbyCode: "",
       valid: {},
@@ -180,13 +180,13 @@ class App extends Component<AppProps, AppState> {
                 </div>
               );
             case GameState.InLobby:
+            case GameState.InGame:
               return (
                 <section className="lobby-header">
                   <h1>{this.state.lobby?.lobbyCode}</h1>
                   <h1>{this.state.nickname}</h1>
                 </section>
               );
-            case GameState.InGame:
             default:
               return null;
           }
@@ -219,37 +219,10 @@ class App extends Component<AppProps, AppState> {
                   />
                 );
               }
-              // For testing board css
+              // For testing layout/css
               // return (
               //   <Lobby
               //     lobbyInfo={{
-              //       board: [
-              //         "A",
-              //         "B",
-              //         "C",
-              //         "D",
-              //         "E",
-              //         "F",
-              //         "G",
-              //         "H",
-              //         "I",
-              //         "J",
-              //         "K",
-              //         "L",
-              //         "M",
-              //         "N",
-              //         "O",
-              //         "P",
-              //         "QU",
-              //         "R",
-              //         "S",
-              //         "T",
-              //         "U",
-              //         "V",
-              //         "W",
-              //         "X",
-              //         "Y"
-              //       ],
               //       hostName: "steve",
               //       playerNames: [],
               //     }}
@@ -258,7 +231,49 @@ class App extends Component<AppProps, AppState> {
               //   />
               // );
             case GameState.InGame:
-              return <Game />;
+              // For testing layout/css
+              if (!this.state.lobby) {
+                return <h1>Loading</h1>;
+              } else {
+                return (
+                  <Game
+                    lobbyInfo={this.state.lobby}
+                    nickname={this.state.nickname}
+                  />
+                );
+              }
+              // return <Game lobbyInfo={{
+              //   lobbyCode: "ABCD",
+              //   board: [
+              //     "A",
+              //     "B",
+              //     "C",
+              //     "D",
+              //     "E",
+              //     "F",
+              //     "G",
+              //     "H",
+              //     "I",
+              //     "J",
+              //     "K",
+              //     "L",
+              //     "M",
+              //     "N",
+              //     "O",
+              //     "P",
+              //     "QU",
+              //     "R",
+              //     "S",
+              //     "T",
+              //     "U",
+              //     "V",
+              //     "W",
+              //     "X",
+              //     "Y",
+              //   ],
+              //   hostName: "steve",
+              // }}
+              // nickname={"steve"}/>;
             default:
               return null;
           }

@@ -53,7 +53,7 @@ export type LobbyInfo = {
   lobbyCode: string;
   playerNames: string[];
   state: LobbyState;
-  time?: number;
+  startTime?: number;
   board?: string[];
   words?: string[]
 };

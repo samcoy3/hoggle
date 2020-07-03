@@ -99,7 +99,7 @@ const toLobbyInfo = (json: LobbyResponse): LobbyInfo => {
     lobbyCode: json.lobbyCode,
     playerNames: json.playerNames,
     state: json.state.tag,
-    time: time,
+    startTime: time,
     board: board,
     words: words,
   };
