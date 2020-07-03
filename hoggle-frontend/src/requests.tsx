@@ -101,13 +101,37 @@ const toLobbyInfo = (json: LobbyResponse): LobbyInfo => {
     state: json.state.tag,
     time: time,
     board: board,
-    words: words
+    words: words,
   };
+};
+
+const settings = async (uuid: string, size: number, seconds: number) => {
+  const data = qs.stringify({ uuid: uuid, size: size, timeInSeconds: seconds });
+  return await getSuccess(LOBBY_SETTINGS_ENDPOINT, data);
 };
 
 const start = async (uuid: string) => {
   const data = qs.stringify({ uuid: uuid });
-  const response = await post(LOBBY_STARTGAME_ENDPOINT, data);
+  return await getSuccess(LOBBY_STARTGAME_ENDPOINT, data);
+};
+
+const leave = async (uuid: string) => {
+  const data = qs.stringify({ uuid: uuid });
+  return await getSuccess(LOBBY_LEAVE_ENDPOINT, data);
+};
+
+const sendWord = async (uuid: string, word: string) => {
+  const data = qs.stringify({ uuid: uuid, word: word });
+  return await getSuccess(GAME_SENDWORD_ENDPOINT, data);
+};
+
+const deleteWord = async (uuid: string, word: string) => {
+  const data = qs.stringify({ uuid: uuid, word: word });
+  return await getSuccess(GAME_DELETEWORD_ENDPOINT, data);
+};
+
+const getSuccess = async (endpoint: string, data: string) => {
+  const response = await post(endpoint, data);
   if (!response.ok) {
     const errorMessage = await response.text();
     alert(errorMessage);
@@ -117,4 +141,4 @@ const start = async (uuid: string) => {
   }
 };
 
-export { newLobby, join, info, start };
+export { newLobby, join, info, settings, start, leave, sendWord, deleteWord };
