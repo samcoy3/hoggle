@@ -79,15 +79,17 @@ const info = async (uuid: string) => {
 const toLobbyInfo = (json: LobbyResponse): LobbyInfo => {
   let time;
   let board;
+  let words;
 
-  if (json.state.contents instanceof Object) {
+  if (json.state.tag === "StartingGame") {
+    time = Date.parse(json.state.contents);
+  } else if (json.state.tag === "InGame") {
     time = Date.parse(json.state.contents[0]);
     board = [];
     for (var i = 0; i < 25; i++) {
       board.push(json.state.contents[1][i][1]);
     }
-  } else if (json.state.contents) {
-    time = Date.parse(json.state.contents);
+    words = json.state.contents[2];
   }
 
   return {
@@ -99,6 +101,7 @@ const toLobbyInfo = (json: LobbyResponse): LobbyInfo => {
     state: json.state.tag,
     time: time,
     board: board,
+    words: words
   };
 };
 
