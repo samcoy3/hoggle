@@ -143,7 +143,7 @@ lobbyServer =
             return NoContent)
 
 gameServer :: ServerT GameAPI AppM
-gameServer = sendWord :<|> removeWord
+gameServer = sendWord :<|> removeWord :<|> rerollBoard
   where
     sendWord :: WordRequest -> AppM NoContent
     sendWord (WordRequest uuid word) = do
@@ -155,8 +155,10 @@ gameServer = sendWord :<|> removeWord
           l <- liftIO $ touchLobby l'
           case lobbyState l of
             (InGame' t b subMap) -> do
-              liftIO . atomically . modifyTVar lobbies $ replace l'
-                (l {lobbyState = InGame' t b $ M.insertWith S.union uuid (S.singleton . (map toUpper) $ word) subMap})
+              liftIO . atomically . modifyTVar lobbies $
+                replace
+                  l'
+                  (l {lobbyState = InGame' t b $ M.insertWith S.union uuid (S.singleton . (map toUpper) $ word) subMap})
               liftIO $ (readTVarIO lobbies) >>= putStrLn . show
               return NoContent
             _ -> (liftIO . atomically . modifyTVar lobbies $ replace l' l) >> return NoContent
@@ -170,11 +172,35 @@ gameServer = sendWord :<|> removeWord
           l <- liftIO $ touchLobby l'
           case lobbyState l of
             (InGame' t b subMap) -> do
-              liftIO . atomically . modifyTVar lobbies $ replace l'
-                (l {lobbyState = InGame' t b $ M.adjust (S.delete . (map toUpper) $ word) uuid subMap})
+              liftIO . atomically . modifyTVar lobbies $
+                replace
+                  l'
+                  (l {lobbyState = InGame' t b $ M.adjust (S.delete . (map toUpper) $ word) uuid subMap})
               liftIO $ (readTVarIO lobbies) >>= putStrLn . show
               return NoContent
             _ -> (liftIO . atomically . modifyTVar lobbies $ replace l' l) >> return NoContent
+    rerollBoard :: UUIDRequest -> AppM NoContent
+    rerollBoard (UUIDRequest uuid) = do
+      lobbies <- ask
+      foundLobby <- liftIO . findLobbyByUUID uuid $ lobbies
+      case foundLobby of
+        Nothing -> throwError (err404 {errBody = "Invalid UUID."})
+        Just l ->
+          if uuid /= host l
+            then throwError (err403 {errBody = "Only the host may reroll the board."})
+            else case (lobbyState l) of
+              (InGame'{}) -> do
+                timeToStartGame <- liftIO (addUTCTime 5 <$> getCurrentTime)
+                liftIO . atomically . modifyTVar lobbies $
+                  replace
+                    l
+                    ( l
+                        { lobbyState = StartingGame' timeToStartGame
+                        }
+                    )
+                liftIO $ (readTVarIO lobbies) >>= putStrLn . show
+                return NoContent
+              _ -> throwError (err403 {errBody = "Can't reroll the board when there's no game in progress!"})
 
 server :: ServerT ServerAPI AppM
 server = lobbyServer :<|> gameServer

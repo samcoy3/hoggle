@@ -40,6 +40,7 @@ type LobbyAPI =
 type GameAPI =
   "sendword" :> ReqBody '[FormUrlEncoded] WordRequest :> Post '[JSON] NoContent
   :<|> "removeword" :> ReqBody '[FormUrlEncoded] WordRequest :> Post '[JSON] NoContent
+  :<|> "reroll" :> ReqBody '[FormUrlEncoded] UUIDRequest :> Post '[JSON] NoContent
 
 type ServerAPI = "lobby" :> LobbyAPI :<|> "game" :> GameAPI
 
