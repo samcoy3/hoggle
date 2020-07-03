@@ -24,24 +24,21 @@ section {
   flex-grow: 1;
 }
 
-.board {
-  position: relative;
-  width: 50%;
-  padding-bottom: 50%;
+.game {
+  display: flex;
+  flex-flow: row wrap;
+  justify-content: space-around;
 }
 
 .board-contents {
-  position: absolute;
-  left: 5%;
-  width: 100%;
-  height: 100%;
   border-style: solid;
   border-color: grey;
   border-radius: 2vmin;
   display: flex;
   flex-flow: column;
-  max-height: 60vmin;
-  max-width: 60vmin;
+  width: 70vmin;
+  height: 70vmin;
+  flex-grow: 0;
 }
 
 .board-row {

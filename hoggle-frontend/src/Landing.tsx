@@ -90,7 +90,7 @@ type JoinFormProps = {
 
 const JoinForm = (props: JoinFormProps) => (
   <div className="form-wrapper">
-    <form onSubmit={props.joinLobbyFunction} noValidate>
+    <form onSubmit={props.joinLobbyFunction} name={"lobby"} noValidate>
       <TextInput
         label={"Lobby Code:"}
         name={"lobbyCode"}

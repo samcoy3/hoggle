@@ -1,26 +1,61 @@
 import React from "react";
 import "./main.css";
 
-import { LobbyInfo } from "./types";
+import { ChangeEventFunction, SubmitEventFunction } from "./types";
 
 type GameProps = {
-  lobbyInfo: LobbyInfo;
+  lobbyCode: string;
+  board: string[];
+  hostName: string;
+  startTime: number;
   nickname: string;
+  word: string;
+  words: Set<String>;
+  wordChangeFunction: ChangeEventFunction;
+  wordSubmitFunction: SubmitEventFunction;
 };
 
-//For testing board css
-// type GameProps = {
-//   lobbyInfo: { lobbyCode: string; board: string[]; hostName: string;};
-//   nickname: string;
-// };
-
 const Game = (props: GameProps) => {
-  const letters = props.lobbyInfo.board;
+  const startTime = props.startTime;
+  const [counter, setCounter] = React.useState(
+    startTime > Date.now()
+      ? Math.ceil((startTime - Date.now()) / 1000)
+      : Math.ceil((startTime + 180 * 1000 - Date.now()) / 1000)
+  );
+
+  React.useEffect(() => {
+    startTime > Date.now() &&
+      setTimeout(
+        () => setCounter(Math.ceil((startTime - Date.now()) / 1000)),
+        1000
+      );
+    startTime <= Date.now() &&
+      setTimeout(
+        () =>
+          setCounter(Math.ceil((startTime + 180 * 1000 - Date.now()) / 1000)),
+        1000
+      );
+  }, [counter]);
+
   return (
-    <div className="Game">
-      {letters ? (
-        <Board letters={letters} size={Math.sqrt(letters.length)} />
-      ) : null}
+    <div>
+      <div className="timer">
+        <h1>{counter}</h1>
+      </div>
+      <div className="game">
+        <Board letters={props.board} size={Math.sqrt(props.board.length)} />
+        <div className="words">
+          <SingleInputForm
+            name={"word"}
+            inputValue={props.word}
+            handleChangeFunction={props.wordChangeFunction}
+            handleSubmitFunction={props.wordSubmitFunction}
+          />
+          <div className="words-list">
+            <WordList words={props.words} />
+          </div>
+        </div>
+      </div>
     </div>
   );
 };
@@ -34,6 +69,18 @@ const PlayerList = (props: PlayerListProps) => {
     <li key={i}>{player}</li>
   ));
   return <ul>{listPlayers}</ul>;
+};
+
+type WordListProps = {
+  words: Set<String>;
+};
+
+const WordList = (props: WordListProps) => {
+  const sorted = Array.from(props.words).sort();
+  const listWords = sorted.map((word, i) => (
+    <li key={i}>{word}</li>
+  ))
+  return <ul>{listWords}</ul>
 };
 
 type BoardProps = {
@@ -53,11 +100,7 @@ const Board = (props: BoardProps) => {
     }
     return rows;
   };
-  return (
-    <div className="board">
-      <div className="board-contents">{getRows()}</div>
-    </div>
-  );
+  return <div className="board-contents">{getRows()}</div>;
 };
 
 type RowProps = {
@@ -76,5 +119,54 @@ type TileProps = {
 const Tile = (props: TileProps) => {
   return <div className="tile">{props.letter}</div>;
 };
+
+type SingleInputFormProps = {
+  name: string;
+  inputLabel?: string;
+  inputValue: string;
+  handleChangeFunction: ChangeEventFunction;
+  handleSubmitFunction: SubmitEventFunction;
+};
+
+const SingleInputForm = (props: SingleInputFormProps) => (
+  <div className="form-wrapper">
+    <form name={props.name} onSubmit={props.handleSubmitFunction} noValidate>
+      <TextInput
+        name={"word"}
+        label={props.inputLabel}
+        value={props.inputValue}
+        handleChangeFunction={props.handleChangeFunction}
+      />
+      <input type="submit" value="Sumbit" />
+    </form>
+  </div>
+);
+
+type TextInputProps = {
+  label?: string;
+  name: string;
+  value: string;
+  valid?: boolean;
+  handleChangeFunction: ChangeEventFunction;
+  info?: string;
+};
+
+const TextInput = (props: TextInputProps) => (
+  <div className="text-input-wrapper">
+    {props.label ? <label htmlFor={props.name}>{props.label}</label> : null}
+    <input
+      className={`text-input ${props.valid === false ? "invalid" : ""}`}
+      type="text"
+      name={props.name}
+      value={props.value}
+      onChange={props.handleChangeFunction}
+    />
+    {props.info ? (
+      <div className="info">
+        <small>{props.info}</small>
+      </div>
+    ) : null}
+  </div>
+);
 
 export default Game;
