@@ -3,8 +3,9 @@ import "./main.css";
 import { LobbyInfo, ClickEventFunction } from "./types";
 
 type LobbyProps = {
-  lobbyInfo: LobbyInfo;
   nickname: string;
+  hostName: string;
+  playerNames: string[];
   startGameFunction: ClickEventFunction;
 };
 
@@ -18,10 +19,10 @@ type LobbyProps = {
 const Lobby = (props: LobbyProps) => {
   return (
     <div className="Lobby">
-      {props.nickname === props.lobbyInfo.hostName ? (
+      {props.nickname === props.hostName ? (
         <button onClick={props.startGameFunction}>Start Game</button>
       ) : null}
-      <PlayerList players={props.lobbyInfo.playerNames} />
+      <PlayerList players={props.playerNames} />
     </div>
   );
 };

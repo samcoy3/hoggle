@@ -92,17 +92,40 @@ const toLobbyInfo = (json: LobbyResponse): LobbyInfo => {
     words = json.state.contents[2];
   }
 
-  return {
-    currentSettings: json.currentSettings,
-    hostName: json.hostName,
-    lastRoundScores: json.lastRoundScores,
-    lobbyCode: json.lobbyCode,
-    playerNames: json.playerNames,
-    state: json.state.tag,
-    startTime: time,
-    board: board,
-    words: words,
-  };
+  if (time && board && words) {
+    return {
+      currentSettings: json.currentSettings,
+      hostName: json.hostName,
+      lastRoundScores: json.lastRoundScores,
+      lobbyCode: json.lobbyCode,
+      playerNames: json.playerNames,
+      state: "InGame",
+      startTime: time,
+      board: board,
+      words: words,
+    };
+  } else if (time) {
+    return {
+      currentSettings: json.currentSettings,
+      hostName: json.hostName,
+      lastRoundScores: json.lastRoundScores,
+      lobbyCode: json.lobbyCode,
+      playerNames: json.playerNames,
+      state: "StartingGame",
+      startTime: time,
+    };
+  } else {
+    return {
+      currentSettings: json.currentSettings,
+      hostName: json.hostName,
+      lastRoundScores: json.lastRoundScores,
+      lobbyCode: json.lobbyCode,
+      playerNames: json.playerNames,
+      state: "InLobby",
+    };
+  }
+
+  
 };
 
 const settings = async (uuid: string, size: number, seconds: number) => {

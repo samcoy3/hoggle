@@ -11,13 +11,20 @@ import Game from "./Game";
 type AppProps = {};
 
 type AppState = {
-  gameState: GameState;
   nickname: string;
   lobbyCode: string;
   valid: { nickname?: boolean; lobbyCode?: boolean; server?: boolean };
   errors: { nickname: string[]; lobbyCode: string[]; server: string[] };
   uuid: string;
-  lobby?: LobbyInfo;
+  settings?: {
+    size: number;
+    timeInSeconds: number;
+  };
+  hostName?: string;
+  lastRoundScores?: null;
+  playerNames?: string[];
+  startTime?: number;
+  board: string[];
   word: string;
   words: Set<String>;
 };
@@ -27,14 +34,14 @@ class App extends Component<AppProps, AppState> {
   constructor(props: AppProps) {
     super(props);
     this.state = {
-      gameState: GameState.InLanding,
       nickname: "",
       lobbyCode: "",
       valid: {},
       errors: { nickname: [], lobbyCode: [], server: [] },
       uuid: "",
+      board: new Array<string>(),
       word: "",
-      words: new Set<String>(),
+      words: new Set<string>(),
     };
     this.handleTextChange = this.handleTextChange.bind(this);
     this.handleFormSubmit = this.handleFormSubmit.bind(this);
@@ -134,10 +141,10 @@ class App extends Component<AppProps, AppState> {
         const first = this.state.word[0];
         if (first === "." || first === "-" || first === "!") {
           words.delete(this.state.word.slice(1));
-          deleteWord(this.state.uuid,this.state.word.slice(1))
+          deleteWord(this.state.uuid, this.state.word.slice(1));
         } else {
           words.add(this.state.word);
-          sendWord(this.state.uuid,this.state.word)
+          sendWord(this.state.uuid, this.state.word);
         }
         this.setState({ words: words, word: "" });
         return;
@@ -161,7 +168,6 @@ class App extends Component<AppProps, AppState> {
       valid.server = true;
       this.setState(
         {
-          gameState: GameState.InLobby,
           uuid: response.data,
           errors: errors,
           valid: valid,
@@ -182,10 +188,37 @@ class App extends Component<AppProps, AppState> {
 
   async getLobby() {
     const lobbyInfo: LobbyInfo = await info(this.state.uuid);
-    if (lobbyInfo.state === "StartingGame" || lobbyInfo.state === "InGame") {
-      this.setState({ gameState: GameState.InGame, lobby: lobbyInfo });
-    } else {
-      this.setState({ gameState: GameState.InLobby, lobby: lobbyInfo });
+    if (lobbyInfo.state === "InLobby" && this.state.board) {
+      // TODO: ask sam to block changing settings while game in progress?
+      // Moving into lobby from a game
+      // Reset startTime, board, word and words
+      this.setState({
+        startTime: undefined,
+        board: new Array<string>(),
+        word: "",
+        words: new Set<string>(),
+      });
+    } else if (
+      lobbyInfo.state === "StartingGame" &&
+      this.state.startTime !== lobbyInfo.startTime
+    ) {
+      // Moving into starting game from lobby/old game
+      this.setState({
+        startTime: lobbyInfo.startTime,
+        word: "",
+        words: new Set<String>(),
+      });
+    } else if (
+      lobbyInfo.state === "InGame" &&
+      this.state.board !== lobbyInfo.board
+    ) {
+      // Moving into game from startingGame/old game
+      this.setState({
+        startTime: lobbyInfo.startTime,
+        board: lobbyInfo.board,
+        word: "",
+        words: new Set<String>(),
+      });
     }
   }
 
@@ -198,120 +231,62 @@ class App extends Component<AppProps, AppState> {
       <div className="App-header">
         {/* <img src={logo} className="App-logo" alt="logo" /> */}
         {(() => {
-          switch (this.state.gameState) {
-            case GameState.InLanding:
-              return (
-                <div>
-                  <h1>Hoggle</h1>
-                  <h2>An Online Multiplayer Boggle Game</h2>
-                </div>
-              );
-            case GameState.InLobby:
-            case GameState.InGame:
-              return (
-                <section className="lobby-header">
-                  <h1>{this.state.lobby?.lobbyCode}</h1>
-                  <h1>{this.state.nickname}</h1>
-                </section>
-              );
-            default:
-              return null;
+          if (!this.state.uuid) {
+            return (
+              <div>
+                <h1>Hoggle</h1>
+                <h2>An Online Multiplayer Boggle Game</h2>
+              </div>
+            );
+          } else {
+            return (
+              <section className="lobby-header">
+                <h1>{this.state.lobbyCode}</h1>
+                <h1>{this.state.nickname}</h1>
+              </section>
+            );
           }
         })()}
       </div>
       <div className="App-body">
         {(() => {
-          switch (this.state.gameState) {
-            case GameState.InLanding:
+          if (this.state.hostName && this.state.playerNames) {
+            if (this.state.startTime) {
               return (
-                <Landing
-                  nickname={this.state.nickname}
+                <Game
                   lobbyCode={this.state.lobbyCode}
-                  valid={this.state.valid}
-                  errors={this.state.errors}
-                  handleChangeFunction={this.handleTextChange}
-                  joinLobbyFunction={this.handleFormSubmit}
-                  createLobbyFunction={this.createLobby}
+                  board={this.state.board}
+                  hostName={this.state.hostName}
+                  startTime={this.state.startTime}
+                  nickname={this.state.nickname}
+                  word={this.state.word}
+                  words={this.state.words}
+                  wordChangeFunction={this.handleTextChange}
+                  wordSubmitFunction={this.handleFormSubmit}
                 />
               );
-            case GameState.InLobby:
-              if (!this.state.lobby) {
-                return <h1>Loading</h1>;
-              } else {
-                return (
-                  <Lobby
-                    lobbyInfo={this.state.lobby}
-                    nickname={this.state.nickname}
-                    startGameFunction={this.startGame}
-                  />
-                );
-              }
-            // For testing layout/css
-            // return (
-            //   <Lobby
-            //     lobbyInfo={{
-            //       hostName: "steve",
-            //       playerNames: [],
-            //     }}
-            //     nickname={"steve"}
-            //     startGameFunction={this.startGame}
-            //   />
-            // );
-            case GameState.InGame:
-              if (!this.state.lobby?.startTime) {
-                return <h1>Loading</h1>;
-              } else {
-                return (
-                  <Game
-                    lobbyCode={this.state.lobbyCode}
-                    board={this.state.lobby.board ? this.state.lobby.board : []}
-                    hostName={this.state.lobby.hostName}
-                    startTime={this.state.lobby.startTime}
-                    nickname={this.state.nickname}
-                    word={this.state.word}
-                    words={this.state.words}
-                    wordChangeFunction={this.handleTextChange}
-                    wordSubmitFunction={this.handleFormSubmit}
-                  />
-                );
-              }
-            // For testing layout/css
-            // return <Game lobbyInfo={{
-            //   state: "InGame",
-            //   lobbyCode: "ABCD",
-            //   board: [
-            //     "A",
-            //     "B",
-            //     "C",
-            //     "D",
-            //     "E",
-            //     "F",
-            //     "G",
-            //     "H",
-            //     "I",
-            //     "J",
-            //     "K",
-            //     "L",
-            //     "M",
-            //     "N",
-            //     "O",
-            //     "P",
-            //     "QU",
-            //     "R",
-            //     "S",
-            //     "T",
-            //     "U",
-            //     "V",
-            //     "W",
-            //     "X",
-            //     "Y",
-            //   ],
-            //   hostName: "steve",
-            //   startTime: Date.now() + 10 * 1000,
-            // }}
-            // nickname={"steve"}/>;
-            default:
-              return null;
+            } else {
+              return (
+                <Lobby
+                  hostName={this.state.hostName}
+                  playerNames={this.state.playerNames}
+                  nickname={this.state.nickname}
+                  startGameFunction={this.startGame}
+                />
+              );
+            }
+          } else {
+            return (
+              <Landing
+                nickname={this.state.nickname}
+                lobbyCode={this.state.lobbyCode}
+                valid={this.state.valid}
+                errors={this.state.errors}
+                handleChangeFunction={this.handleTextChange}
+                joinLobbyFunction={this.handleFormSubmit}
+                createLobbyFunction={this.createLobby}
+              />
+            );
           }
         })()}
       </div>

@@ -52,8 +52,23 @@ export type LobbyInfo = {
   lastRoundScores: null;
   lobbyCode: string;
   playerNames: string[];
-  state: LobbyState;
-  startTime?: number;
-  board?: string[];
-  words?: string[]
+  state: "InLobby";
+} | {
+  currentSettings: { size: number; timeInSeconds: number };
+  hostName: string;
+  lastRoundScores: null;
+  lobbyCode: string;
+  playerNames: string[];
+  state: "StartingGame";
+  startTime: number;
+} | {
+  currentSettings: { size: number; timeInSeconds: number };
+  hostName: string;
+  lastRoundScores: null;
+  lobbyCode: string;
+  playerNames: string[];
+  state: "InGame";
+  startTime: number;
+  board: string[];
+  words: string[];
 };
