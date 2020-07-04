@@ -1,8 +1,8 @@
 import React, { Component, FormEvent, ChangeEvent } from "react";
 import "./App.css";
 
-import { join, newLobby, info, start, sendWord, deleteWord } from "./requests";
-import { GameState, LobbyInfo } from "./types";
+import { join, newLobby, info, start, sendWord, removeWord } from "./requests";
+import { LobbyInfo } from "./types";
 
 import Landing from "./Landing";
 import Lobby from "./Lobby";
@@ -141,7 +141,7 @@ class App extends Component<AppProps, AppState> {
         const first = this.state.word[0];
         if (first === "." || first === "-" || first === "!") {
           words.delete(this.state.word.slice(1));
-          deleteWord(this.state.uuid, this.state.word.slice(1));
+          removeWord(this.state.uuid, this.state.word.slice(1));
         } else {
           words.add(this.state.word);
           sendWord(this.state.uuid, this.state.word);
@@ -160,24 +160,14 @@ class App extends Component<AppProps, AppState> {
     }
   }
 
-  handleUUIDReturn(response: { success: boolean; data: string }) {
-    let valid = this.state.valid;
-    let errors = this.state.errors;
-    errors.server = [];
-    if (response.success) {
-      valid.server = true;
+  handleUUIDReturn(response: false | string) {
+    if (response !== false) {
       this.setState(
         {
-          uuid: response.data,
-          errors: errors,
-          valid: valid,
+          uuid: response,
         },
         this.startFetchLobbyLoop
       );
-    } else {
-      errors.server.push(response.data);
-      valid.server = false;
-      this.setState({ errors: errors, valid: valid });
     }
   }
 
@@ -188,10 +178,18 @@ class App extends Component<AppProps, AppState> {
 
   async getLobby() {
     const lobbyInfo: LobbyInfo = await info(this.state.uuid);
-    if (lobbyInfo.state === "InLobby" && this.state.board) {
+    this.setState({
+      settings: lobbyInfo.currentSettings,
+      hostName: lobbyInfo.hostName,
+      lastRoundScores: lobbyInfo.lastRoundScores,
+      lobbyCode: lobbyInfo.lobbyCode,
+      playerNames: lobbyInfo.playerNames,
+    });
+    if (lobbyInfo.state === "InLobby" && this.state.board.length !== 0) {
       // TODO: ask sam to block changing settings while game in progress?
       // Moving into lobby from a game
       // Reset startTime, board, word and words
+      console.log("new lobby");
       this.setState({
         startTime: undefined,
         board: new Array<string>(),
@@ -203,6 +201,7 @@ class App extends Component<AppProps, AppState> {
       this.state.startTime !== lobbyInfo.startTime
     ) {
       // Moving into starting game from lobby/old game
+      console.log("new start");
       this.setState({
         startTime: lobbyInfo.startTime,
         word: "",
@@ -210,9 +209,10 @@ class App extends Component<AppProps, AppState> {
       });
     } else if (
       lobbyInfo.state === "InGame" &&
-      this.state.board !== lobbyInfo.board
+      this.state.startTime !== lobbyInfo.startTime
     ) {
       // Moving into game from startingGame/old game
+      console.log("new game");
       this.setState({
         startTime: lobbyInfo.startTime,
         board: lobbyInfo.board,

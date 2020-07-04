@@ -1,7 +1,7 @@
 import qs from "qs";
 import { LobbyResponse, LobbyInfo } from "./types";
 
-const API = "http://hoggle.meme.ninja/api";
+const API = "https://hoggle.meme.ninja/api";
 const LOBBY_NEW_ENDPOINT = API + "/lobby/new";
 const LOBBY_JOIN_ENDPOINT = API + "/lobby/join";
 const LOBBY_INFO_ENDPOINT = API + "/lobby/info";
@@ -9,7 +9,7 @@ const LOBBY_SETTINGS_ENDPOINT = API + "/lobby/settings";
 const LOBBY_STARTGAME_ENDPOINT = API + "/lobby/startgame";
 const LOBBY_LEAVE_ENDPOINT = API + "/lobby/leave";
 const GAME_SENDWORD_ENDPOINT = API + "/game/sendword";
-const GAME_DELETEWORD_ENDPOINT = API + "/game/deleteword";
+const GAME_REMOVEWORD_ENDPOINT = API + "/game/removeword";
 
 const post = async (endpoint: string, data: any): Promise<Response> => {
   const requestOptions = {
@@ -33,26 +33,16 @@ const join = async (nickname: string, lobbyCode: string) => {
 const fetchUUID = async (
   endpoint: string,
   data: any
-): Promise<{ success: boolean; data: string }> => {
-  return post(endpoint, data)
-    .then((response) => {
-      if (!response.ok) {
-        throw new Error(response.status.toString() + response.statusText);
-      }
-      console.log(response);
-      return response.json();
-    })
-    .then((uuid: string) => {
-      console.log(uuid);
-      return { success: true, data: uuid };
-    })
-    .catch((e) => {
-      if (e instanceof Error) {
-        console.error(e.message);
-        return { success: false, data: e.message };
-      }
-      throw e;
-    });
+): Promise<false | string> => {
+  const response = await post(endpoint, data);
+  if (!response.ok) {
+    const content = await response.text();
+    alert(response.status + " " + content);
+    return false;
+  } else {
+    const content = await response.json();
+    return content;
+  }
 };
 
 const info = async (uuid: string) => {
@@ -124,8 +114,6 @@ const toLobbyInfo = (json: LobbyResponse): LobbyInfo => {
       state: "InLobby",
     };
   }
-
-  
 };
 
 const settings = async (uuid: string, size: number, seconds: number) => {
@@ -148,20 +136,21 @@ const sendWord = async (uuid: string, word: string) => {
   return await getSuccess(GAME_SENDWORD_ENDPOINT, data);
 };
 
-const deleteWord = async (uuid: string, word: string) => {
+const removeWord = async (uuid: string, word: string) => {
   const data = qs.stringify({ uuid: uuid, word: word });
-  return await getSuccess(GAME_DELETEWORD_ENDPOINT, data);
+  return await getSuccess(GAME_REMOVEWORD_ENDPOINT, data);
 };
 
 const getSuccess = async (endpoint: string, data: string) => {
   const response = await post(endpoint, data);
+  console.log(response)
   if (!response.ok) {
-    const errorMessage = await response.text();
-    alert(errorMessage);
+    const content = await response.text();
+    alert(response.status + " " + content);
     return false;
   } else {
     return true;
   }
 };
 
-export { newLobby, join, info, settings, start, leave, sendWord, deleteWord };
+export { newLobby, join, info, settings, start, leave, sendWord, removeWord};
