@@ -41,6 +41,7 @@ type AppState = {
   board: string[];
   word: string;
   words: Set<string>;
+  timerRunning: boolean;
   counter?: number;
   interval?: NodeJS.Timeout;
 };
@@ -58,6 +59,7 @@ class App extends Component<AppProps, AppState> {
       board: new Array<string>(),
       word: "",
       words: new Set<string>(),
+      timerRunning: false,
     };
     this.handleTextChange = this.handleTextChange.bind(this);
     this.handleFormSubmit = this.handleFormSubmit.bind(this);
@@ -83,13 +85,14 @@ class App extends Component<AppProps, AppState> {
       }
       this.setState({ counter: counter });
     }, 1000);
-    this.setState({ interval: interval });
+    this.setState({ interval: interval, timerRunning: true });
   }
 
   cancelTimer() {
     if (this.state.interval) {
       clearInterval(this.state.interval);
     }
+    this.setState({timerRunning: false})
   }
 
   beforeunload = (e: Event) => {
@@ -376,10 +379,10 @@ class App extends Component<AppProps, AppState> {
   resetWords(lobbyInfo: LobbyInfo) {
     if (
       (lobbyInfo.state === "StartingGame" || lobbyInfo.state === "InGame") &&
-      !this.state.interval
+      !this.state.timerRunning
     ) {
       this.startTimer();
-    } else if (lobbyInfo.state === "InLobby" && this.state.interval) {
+    } else if (lobbyInfo.state === "InLobby" && this.state.timerRunning) {
       this.cancelTimer();
     }
 
