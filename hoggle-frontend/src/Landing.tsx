@@ -9,8 +9,8 @@ import {
 type LandingProps = {
   nickname: string;
   lobbyCode: string;
-  valid: { nickname?: boolean; lobbyCode?: boolean; server?: boolean };
-  errors: { nickname: string[]; lobbyCode: string[]; server: string[] };
+  valid: { nickname?: boolean; lobbyCode?: boolean };
+  errors: { nickname: string[]; lobbyCode: string[] };
   handleChangeFunction: ChangeEventFunction;
   joinLobbyFunction: SubmitEventFunction;
   createLobbyFunction: ClickEventFunction;
@@ -18,9 +18,7 @@ type LandingProps = {
 
 const Landing = (props: LandingProps) => (
   <div className="landing">
-    {props.valid.nickname === false ||
-    props.valid.lobbyCode === false ||
-    props.valid.server === false ? (
+    {props.valid.nickname === false || props.valid.lobbyCode === false ? (
       <ErrorList errors={props.errors} />
     ) : null}
     <TextInput
@@ -42,13 +40,11 @@ const Landing = (props: LandingProps) => (
 );
 
 type ErrorListProps = {
-  errors: { nickname: string[]; lobbyCode: string[]; server: string[] };
+  errors: { nickname: string[]; lobbyCode: string[] };
 };
 
 const ErrorList = (props: ErrorListProps) => {
-  const errors = props.errors.nickname
-    .concat(props.errors.lobbyCode)
-    .concat(props.errors.server);
+  const errors = props.errors.nickname.concat(props.errors.lobbyCode);
   const listItems = errors.map((error, i) => <li key={i}>{error}</li>);
   return (
     <div className="join-error-wrapper">
