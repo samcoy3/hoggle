@@ -17,28 +17,6 @@ import Landing from "./Landing";
 import Lobby from "./Lobby";
 import Game from "./Game";
 
-// type AppProps = {};
-// type AppState = { exit: boolean };
-
-// class App extends Component<AppProps, AppState> {
-//   constructor(props: AppProps) {
-//     super(props);
-//     this.state = { exit: false };
-//   }
-//   componentDidMount() {
-//     window.addEventListener("beforeunload", () => {
-//       this.setState({ exit: true });
-//     });
-//   }
-//   render() {
-//     if (this.state.exit) {
-//       return false;
-//     } else {
-//       return <InnerApp />;
-//     }
-//   }
-// }
-
 type AppProps = {};
 
 type AppState = {
@@ -291,13 +269,13 @@ class App extends Component<AppProps, AppState> {
                   timeInSeconds: timeInt.toString(),
                 },
               });
-              alert("Changes successful!")
+              alert("Changes successful!");
             }
           }
         }
         break;
       default:
-        alert("unknown form " + formName)
+        console.log("Unknown form " + formName);
         break;
     }
   }

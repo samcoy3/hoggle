@@ -9,7 +9,7 @@ import {
 type LandingProps = {
   nickname: string;
   lobbyCode: string;
-  valid: { nickname?: boolean; lobbyCode?: boolean, server?: boolean };
+  valid: { nickname?: boolean; lobbyCode?: boolean; server?: boolean };
   errors: { nickname: string[]; lobbyCode: string[]; server: string[] };
   handleChangeFunction: ChangeEventFunction;
   joinLobbyFunction: SubmitEventFunction;
@@ -18,7 +18,9 @@ type LandingProps = {
 
 const Landing = (props: LandingProps) => (
   <div className="landing">
-    {props.valid.nickname === false || props.valid.lobbyCode === false || props.valid.server === false ? (
+    {props.valid.nickname === false ||
+    props.valid.lobbyCode === false ||
+    props.valid.server === false ? (
       <ErrorList errors={props.errors} />
     ) : null}
     <TextInput

@@ -55,7 +55,7 @@ const info = async (uuid: string) => {
       return response.json();
     })
     .then((json) => {
-      console.log(json)
+      console.log(json);
       return toLobbyInfo(json);
     })
     .catch((e) => {

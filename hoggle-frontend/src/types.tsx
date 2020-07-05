@@ -12,7 +12,9 @@ export type LobbyResponse =
   | {
       currentSettings: { size: number; timeInSeconds: number };
       hostName: string;
-      lastRoundScores: [{[name: string]: string[]}, {[word: string]: number}] | null;
+      lastRoundScores:
+        | [{ [name: string]: string[] }, { [word: string]: number }]
+        | null;
       lobbyCode: string;
       playerNames: string[];
       state: {
@@ -22,7 +24,9 @@ export type LobbyResponse =
   | {
       currentSettings: { size: number; timeInSeconds: number };
       hostName: string;
-      lastRoundScores: [{[name: string]: string[]}, {[word: string]: number}] | null;
+      lastRoundScores:
+        | [{ [name: string]: string[] }, { [word: string]: number }]
+        | null;
       lobbyCode: string;
       playerNames: string[];
       state: {
@@ -33,7 +37,9 @@ export type LobbyResponse =
   | {
       currentSettings: { size: number; timeInSeconds: number };
       hostName: string;
-      lastRoundScores: [{[name: string]: string[]}, {[word: string]: number}] | null;
+      lastRoundScores:
+        | [{ [name: string]: string[] }, { [word: string]: number }]
+        | null;
       lobbyCode: string;
       playerNames: string[];
       state: {

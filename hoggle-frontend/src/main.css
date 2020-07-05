@@ -58,3 +58,77 @@ section {
   justify-content: center;
   align-items: center;
 }
+
+.text-input-wrapper {
+  padding: 0.5rem;
+}
+
+.form-wrapper {
+  padding-bottom: 0.5rem;
+}
+
+#lobby {
+  display: flex;
+  flex-flow: column;
+  align-items: center;
+}
+
+#admin-panel {
+  border: solid;
+  margin-top: 1rem;
+  padding: 1rem;
+}
+
+#admin-panel-title {
+  font-size: xx-large;
+  padding-bottom: 0.5rem;
+}
+
+#settings-title {
+  font-size: x-large;
+  margin: 0px;
+  padding-bottom: 0px;
+}
+
+#settings-form {
+  border: solid;
+  margin-bottom: 1rem;
+}
+
+#score-card-container {
+  display: flex;
+  flex-flow: row wrap;
+  align-items: center;
+}
+
+.score-card {
+  border-style: solid;
+  border-color: darkslategray;
+  border-radius: 0.5rem;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.score-card-title {
+  font-size: x-large;
+  background-color: lightskyblue;
+  padding: 0.2rem 0.5rem 0rem 0.5rem;
+}
+
+.score-card-word-list {
+  display: flex;
+  flex-direction: column;
+}
+
+.score-card-word.wrong {
+  background-color: lightcoral;
+}
+
+.score-card-word.shared {
+  background-color: lightgrey;
+}
+
+.score-card-word.right {
+  background-color: lightgreen;
+}

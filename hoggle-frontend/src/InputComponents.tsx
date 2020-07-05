@@ -36,8 +36,9 @@ type TextInputFormProps = {
 };
 
 const TextInputForm = (props: TextInputFormProps) => {
-  const getInputs = props.inputs.map((input) => (
+  const getInputs = props.inputs.map((input, i) => (
     <TextInput
+      key={i}
       name={input.name}
       label={input.label}
       value={input.value}

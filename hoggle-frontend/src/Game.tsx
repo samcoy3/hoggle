@@ -58,7 +58,7 @@ const Board = (props: BoardProps) => {
   const getRows = () => {
     const size = props.size;
     console.log(size);
-    console.log(props.letters)
+    console.log(props.letters);
     var rows = [];
     for (var i = 0; i < size; i++) {
       const start = i * size;
