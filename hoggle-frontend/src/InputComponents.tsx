@@ -53,7 +53,7 @@ const TextInputForm = (props: TextInputFormProps) => {
         noValidate
       >
         <div>{getInputs}</div>
-        <input type="submit" value="Sumbit" />
+        <input type="submit" value="Submit" />
       </form>
     </div>
   );
