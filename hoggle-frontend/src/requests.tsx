@@ -10,6 +10,7 @@ const LOBBY_STARTGAME_ENDPOINT = API + "/lobby/startgame";
 const LOBBY_LEAVE_ENDPOINT = API + "/lobby/leave";
 const GAME_SENDWORD_ENDPOINT = API + "/game/sendword";
 const GAME_REMOVEWORD_ENDPOINT = API + "/game/removeword";
+const GAME_REROLL_ENDPOINT = API + "/game/reroll";
 
 const post = async (endpoint: string, data: any): Promise<Response> => {
   const requestOptions = {
@@ -47,7 +48,7 @@ const fetchUUID = async (
 
 const info = async (uuid: string): Promise<false | LobbyInfo> => {
   const data = qs.stringify({ uuid: uuid });
-  const response = await post(LOBBY_INFO_ENDPOINT, data)
+  const response = await post(LOBBY_INFO_ENDPOINT, data);
   if (!response.ok) {
     const content = await response.text();
     alert(response.status + " " + content);
@@ -142,6 +143,11 @@ const removeWord = async (uuid: string, word: string) => {
   return await getSuccess(GAME_REMOVEWORD_ENDPOINT, data);
 };
 
+const reroll = async (uuid: string) => {
+  const data = qs.stringify({ uuid: uuid });
+  return await getSuccess(GAME_REROLL_ENDPOINT, data);
+};
+
 const getSuccess = async (endpoint: string, data: string) => {
   const response = await post(endpoint, data);
   if (!response.ok) {
@@ -153,4 +159,14 @@ const getSuccess = async (endpoint: string, data: string) => {
   }
 };
 
-export { newLobby, join, info, settings, start, leave, sendWord, removeWord };
+export {
+  newLobby,
+  join,
+  info,
+  settings,
+  start,
+  leave,
+  sendWord,
+  removeWord,
+  reroll,
+};

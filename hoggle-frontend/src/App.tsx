@@ -7,9 +7,10 @@ import {
   info,
   settings,
   start,
+  leave,
   sendWord,
   removeWord,
-  leave,
+  reroll,
 } from "./requests";
 import { LobbyInfo, LastRound } from "./types";
 
@@ -65,6 +66,7 @@ class App extends Component<AppProps, AppState> {
     this.handleFormSubmit = this.handleFormSubmit.bind(this);
     this.createLobby = this.createLobby.bind(this);
     this.startGame = this.startGame.bind(this);
+    this.rerollGame = this.rerollGame.bind(this);
   }
 
   componentDidMount() {
@@ -234,7 +236,7 @@ class App extends Component<AppProps, AppState> {
         }
         break;
       case "settings":
-        // TODO: reword app state so new/current settings either both present or both absent
+        // TODO: rework app state so new/current settings either both present or both absent
         if (this.state.newSettings) {
           const sizeInt = parseInt(this.state.newSettings.size);
           const timeInt = parseInt(this.state.newSettings.timeInSeconds);
@@ -406,6 +408,12 @@ class App extends Component<AppProps, AppState> {
     start(this.state.uuid);
   }
 
+  rerollGame() {
+    if (reroll(this.state.uuid)) {
+      this.setState({ counter: undefined });
+    }
+  }
+
   render = () => (
     <div className="App">
       <div className="App-header">
@@ -441,6 +449,7 @@ class App extends Component<AppProps, AppState> {
                 nickname={this.state.nickname}
                 word={this.state.word}
                 words={this.state.words}
+                rerollFunction={this.rerollGame}
                 wordChangeFunction={this.handleTextChange}
                 wordSubmitFunction={this.handleFormSubmit}
                 counter={this.state.counter}

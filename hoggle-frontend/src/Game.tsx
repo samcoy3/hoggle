@@ -1,8 +1,13 @@
 import React from "react";
 import "./main.css";
 
-import { ChangeEventFunction, SubmitEventFunction } from "./types";
+import {
+  ChangeEventFunction,
+  SubmitEventFunction,
+  ClickEventFunction,
+} from "./types";
 import { TextInputForm } from "./InputComponents";
+import { hostname } from "os";
 
 type GameProps = {
   board: string[];
@@ -10,6 +15,7 @@ type GameProps = {
   nickname: string;
   word: string;
   words: Set<String>;
+  rerollFunction: ClickEventFunction;
   wordChangeFunction: ChangeEventFunction;
   wordSubmitFunction: SubmitEventFunction;
   counter?: number;
@@ -18,8 +24,13 @@ type GameProps = {
 const Game = (props: GameProps) => {
   return (
     <div>
+      {props.hostName === props.nickname ? (
+        <button id="reroll-button" onClick={props.rerollFunction}>
+          Reroll Board
+        </button>
+      ) : null}
       <div className="timer">
-        {props.counter ? <h1>{props.counter}</h1> : <h1>Game starting...</h1>}
+        {props.counter ? <h1>{props.counter}</h1> : <h1>--</h1>}
       </div>
       <div className="game">
         <Board letters={props.board} size={Math.sqrt(props.board.length)} />
@@ -57,8 +68,6 @@ type BoardProps = {
 const Board = (props: BoardProps) => {
   const getRows = () => {
     const size = props.size;
-    console.log(size);
-    console.log(props.letters);
     var rows = [];
     for (var i = 0; i < size; i++) {
       const start = i * size;
