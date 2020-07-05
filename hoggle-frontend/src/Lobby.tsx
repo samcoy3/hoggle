@@ -25,10 +25,11 @@ const Lobby = (props: LobbyProps) => {
     <div id="lobby">
       {props.nickname === props.hostName && props.newSettings ? (
         <AdminPanel
+          location="Lobby"
           newSettings={props.newSettings}
           handleChangeFunction={props.handleChangeFunction}
           handleSubmitFunction={props.handleSubmitFunction}
-          startGameFunction={props.startGameFunction}
+          gameFunction={props.startGameFunction}
         />
       ) : null}
       <PlayerList players={props.playerNames} />

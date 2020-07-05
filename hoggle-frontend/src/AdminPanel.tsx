@@ -8,10 +8,11 @@ import {
 import { TextInputForm } from "./InputComponents";
 
 type AdminPanelProps = {
+  location: "Lobby" | "Game";
   newSettings: { size: string; timeInSeconds: string };
   handleChangeFunction: ChangeEventFunction;
   handleSubmitFunction: SubmitEventFunction;
-  startGameFunction: ClickEventFunction;
+  gameFunction: ClickEventFunction;
 };
 
 const AdminPanel = (props: AdminPanelProps) => (
@@ -37,8 +38,8 @@ const AdminPanel = (props: AdminPanelProps) => (
         handleSubmitFunction={props.handleSubmitFunction}
       />
     </div>
-    <button id="start-button" onClick={props.startGameFunction}>
-      Start Game
+    <button id="game-button" onClick={props.gameFunction}>
+      {props.location === "Lobby" ? "Start Game" : "Reroll Game"}
     </button>
   </div>
 );

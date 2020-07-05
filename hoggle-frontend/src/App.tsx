@@ -447,11 +447,12 @@ class App extends Component<AppProps, AppState> {
                 board={this.state.board}
                 hostName={this.state.hostName}
                 nickname={this.state.nickname}
+                newSettings={this.state.newSettings}
                 word={this.state.word}
                 words={this.state.words}
-                rerollFunction={this.rerollGame}
-                wordChangeFunction={this.handleTextChange}
-                wordSubmitFunction={this.handleFormSubmit}
+                rerollGameFunction={this.rerollGame}
+                handleChangeFunction={this.handleTextChange}
+                handleSubmitFunction={this.handleFormSubmit}
                 counter={this.state.counter}
               />
             );

@@ -7,39 +7,44 @@ import {
   ClickEventFunction,
 } from "./types";
 import { TextInputForm } from "./InputComponents";
-import { hostname } from "os";
+import { AdminPanel } from "./AdminPanel";
 
 type GameProps = {
   board: string[];
   hostName: string;
   nickname: string;
+  newSettings?: { size: string; timeInSeconds: string };
   word: string;
   words: Set<String>;
-  rerollFunction: ClickEventFunction;
-  wordChangeFunction: ChangeEventFunction;
-  wordSubmitFunction: SubmitEventFunction;
+  rerollGameFunction: ClickEventFunction;
+  handleChangeFunction: ChangeEventFunction;
+  handleSubmitFunction: SubmitEventFunction;
   counter?: number;
 };
 
 const Game = (props: GameProps) => {
   return (
-    <div>
-      {props.hostName === props.nickname ? (
-        <button id="reroll-button" onClick={props.rerollFunction}>
-          Reroll Board
-        </button>
+    <div id="game">
+      {props.nickname === props.hostName && props.newSettings ? (
+        <AdminPanel
+          location="Game"
+          newSettings={props.newSettings}
+          handleChangeFunction={props.handleChangeFunction}
+          handleSubmitFunction={props.handleSubmitFunction}
+          gameFunction={props.rerollGameFunction}
+        />
       ) : null}
       <div className="timer">
         {props.counter ? <h1>{props.counter}</h1> : <h1>--</h1>}
       </div>
-      <div className="game">
+      <div id="board">
         <Board letters={props.board} size={Math.sqrt(props.board.length)} />
         <div className="words">
           <TextInputForm
             formName={"word"}
             inputs={[{ name: "word", value: props.word }]}
-            handleChangeFunction={props.wordChangeFunction}
-            handleSubmitFunction={props.wordSubmitFunction}
+            handleChangeFunction={props.handleChangeFunction}
+            handleSubmitFunction={props.handleSubmitFunction}
           />
           <div className="words-list">
             <WordList words={props.words} />

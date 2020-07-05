@@ -67,7 +67,7 @@ section {
   padding-bottom: 0.5rem;
 }
 
-#lobby {
+#lobby, #game {
   display: flex;
   flex-flow: column;
   align-items: center;
