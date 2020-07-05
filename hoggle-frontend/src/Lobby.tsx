@@ -1,13 +1,21 @@
 import React from "react";
 import "./main.css";
-import { ClickEventFunction, LastRound } from "./types";
+import {
+  ClickEventFunction,
+  LastRound,
+  SubmitEventFunction,
+  ChangeEventFunction,
+} from "./types";
+import { TextInputForm } from "./InputComponents";
 
 type LobbyProps = {
   nickname: string;
   hostName: string;
   playerNames: string[];
   lastRound?: LastRound;
-  changeSettingsFunction: ClickEventFunction;
+  newSettings?: { size: string; timeInSeconds: string };
+  handleChangeFunction: ChangeEventFunction;
+  handleSubmitFunction: SubmitEventFunction;
   startGameFunction: ClickEventFunction;
 };
 
@@ -16,9 +24,25 @@ const Lobby = (props: LobbyProps) => {
     <div className="Lobby">
       {props.nickname === props.hostName ? (
         <div>
-          <button onClick={props.changeSettingsFunction}>
-            Change Settings
-          </button>
+          {props.newSettings ? (
+            <TextInputForm
+              formName={"settings"}
+              inputs={[
+                {
+                  name: "size",
+                  value: props.newSettings.size,
+                  label: "Board Size:",
+                },
+                {
+                  name: "time",
+                  value: props.newSettings.timeInSeconds,
+                  label: "Game time (seconds):",
+                },
+              ]}
+              handleChangeFunction={props.handleChangeFunction}
+              handleSubmitFunction={props.handleSubmitFunction}
+            />
+          ) : null}
           <button onClick={props.startGameFunction}>Start Game</button>
         </div>
       ) : null}
@@ -50,15 +74,29 @@ type LastRoundScoresProps = {
 };
 
 const LastRoundScores = (props: LastRoundScoresProps) => {
-  const listPlayers = props.playerNames.map((player, i) => (
-    <div className="player-score-card">
+  const getScore = (player: string) => {
+    let total = 0;
+    const words = props.lastRound.lastRoundWords[player];
+    const points = props.lastRound.lastRoundPoints;
+    if (words) {
+      for (var i = 0; i < words.length; i++) {
+        total += points[words[i]];
+      }
+    }    
+    return total;
+  }
+  const listPlayers = props.playerNames.map((player) => {
+    if (props.lastRound.lastRoundWords[player]) {
+      return (<div className="player-score-card">
       <h1>{player}</h1>
+      <h2>{getScore(player)}</h2>
       <PlayerWords
         words={props.lastRound.lastRoundWords[player]}
         points={props.lastRound.lastRoundPoints}
       />
-    </div>
-  ));
+    </div>)
+    }
+  });
   return <ul>{listPlayers}</ul>;
 };
 
@@ -68,12 +106,12 @@ type PlayerWordsProps = {
 };
 
 const PlayerWords = (props: PlayerWordsProps) => {
-  const listWords = props.words.map((word, i) => (
+  const listWords = props.words ? props.words.map((word, i) => (
     <section className="player-word-list">
       <div className="player-word">{word}</div>
       <div className="player-word-score">{props.points[word]}</div>
     </section>
-  ));
+  )): null;
 
   return <ul>{listWords}</ul>;
 };

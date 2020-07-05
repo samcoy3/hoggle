@@ -1,5 +1,5 @@
 import qs from "qs";
-import { LobbyResponse, LobbyInfo, LastRound } from "./types";
+import { LobbyResponse, LobbyInfo } from "./types";
 
 const API = "https://hoggle.meme.ninja/api";
 const LOBBY_NEW_ENDPOINT = API + "/lobby/new";
@@ -55,7 +55,7 @@ const info = async (uuid: string) => {
       return response.json();
     })
     .then((json) => {
-      console.log(json);
+      console.log(json)
       return toLobbyInfo(json);
     })
     .catch((e) => {
@@ -77,7 +77,7 @@ const toLobbyInfo = (json: LobbyResponse): LobbyInfo => {
   } else if (json.state.tag === "InGame") {
     time = Date.parse(json.state.contents[0]);
     board = [];
-    for (var i = 0; i < 25; i++) {
+    for (var i = 0; i < json.state.contents[1].length; i++) {
       board.push(json.state.contents[1][i][1]);
     }
     words = json.state.contents[2];
@@ -87,7 +87,7 @@ const toLobbyInfo = (json: LobbyResponse): LobbyInfo => {
     lastRoundScores = {
       lastRoundWords: json.lastRoundScores[0],
       lastRoundPoints: json.lastRoundScores[1],
-    }
+    };
   }
 
   if (time && board && words) {
@@ -152,7 +152,6 @@ const removeWord = async (uuid: string, word: string) => {
 
 const getSuccess = async (endpoint: string, data: string) => {
   const response = await post(endpoint, data);
-  console.log(response);
   if (!response.ok) {
     const content = await response.text();
     alert(response.status + " " + content);

@@ -1,7 +1,8 @@
-import React, { Component } from "react";
+import React from "react";
 import "./main.css";
 
 import { ChangeEventFunction, SubmitEventFunction } from "./types";
+import { TextInputForm } from "./InputComponents";
 
 type GameProps = {
   board: string[];
@@ -15,25 +16,17 @@ type GameProps = {
 };
 
 const Game = (props: GameProps) => {
-
   return (
     <div>
       <div className="timer">
-        {props.counter ? (
-          <h1>{props.counter}</h1>
-        ) : (
-          <h1>Game starting...</h1>
-        )}
+        {props.counter ? <h1>{props.counter}</h1> : <h1>Game starting...</h1>}
       </div>
       <div className="game">
-        <Board
-          letters={props.board}
-          size={Math.sqrt(props.board.length)}
-        />
+        <Board letters={props.board} size={Math.sqrt(props.board.length)} />
         <div className="words">
-          <SingleInputForm
-            name={"word"}
-            inputValue={props.word}
+          <TextInputForm
+            formName={"word"}
+            inputs={[{ name: "word", value: props.word }]}
             handleChangeFunction={props.wordChangeFunction}
             handleSubmitFunction={props.wordSubmitFunction}
           />
@@ -44,7 +37,7 @@ const Game = (props: GameProps) => {
       </div>
     </div>
   );
-}
+};
 
 type WordListProps = {
   words: Set<String>;
@@ -64,6 +57,8 @@ type BoardProps = {
 const Board = (props: BoardProps) => {
   const getRows = () => {
     const size = props.size;
+    console.log(size);
+    console.log(props.letters)
     var rows = [];
     for (var i = 0; i < size; i++) {
       const start = i * size;
@@ -91,54 +86,5 @@ type TileProps = {
 const Tile = (props: TileProps) => {
   return <div className="tile">{props.letter}</div>;
 };
-
-type SingleInputFormProps = {
-  name: string;
-  inputLabel?: string;
-  inputValue: string;
-  handleChangeFunction: ChangeEventFunction;
-  handleSubmitFunction: SubmitEventFunction;
-};
-
-const SingleInputForm = (props: SingleInputFormProps) => (
-  <div className="form-wrapper">
-    <form name={props.name} onSubmit={props.handleSubmitFunction} noValidate>
-      <TextInput
-        name={"word"}
-        label={props.inputLabel}
-        value={props.inputValue}
-        handleChangeFunction={props.handleChangeFunction}
-      />
-      <input type="submit" value="Sumbit" />
-    </form>
-  </div>
-);
-
-type TextInputProps = {
-  label?: string;
-  name: string;
-  value: string;
-  valid?: boolean;
-  handleChangeFunction: ChangeEventFunction;
-  info?: string;
-};
-
-const TextInput = (props: TextInputProps) => (
-  <div className="text-input-wrapper">
-    {props.label ? <label htmlFor={props.name}>{props.label}</label> : null}
-    <input
-      className={`text-input ${props.valid === false ? "invalid" : ""}`}
-      type="text"
-      name={props.name}
-      value={props.value}
-      onChange={props.handleChangeFunction}
-    />
-    {props.info ? (
-      <div className="info">
-        <small>{props.info}</small>
-      </div>
-    ) : null}
-  </div>
-);
 
 export default Game;

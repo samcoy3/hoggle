@@ -47,9 +47,13 @@ type AppState = {
   valid: { nickname?: boolean; lobbyCode?: boolean; server?: boolean };
   errors: { nickname: string[]; lobbyCode: string[]; server: string[] };
   uuid: string;
-  settings?: {
+  currentSettings?: {
     size: number;
     timeInSeconds: number;
+  };
+  newSettings?: {
+    size: string;
+    timeInSeconds: string;
   };
   hostName?: string;
   lastRound?: LastRound;
@@ -81,7 +85,6 @@ class App extends Component<AppProps, AppState> {
     this.handleFormSubmit = this.handleFormSubmit.bind(this);
     this.createLobby = this.createLobby.bind(this);
     this.startGame = this.startGame.bind(this);
-    this.changeSettings = this.changeSettings.bind(this);
   }
 
   componentDidMount() {
@@ -194,35 +197,108 @@ class App extends Component<AppProps, AppState> {
       case "word":
         this.setState({ word: value });
         break;
+      case "size":
+        if (this.state.newSettings) {
+          const newSettings = this.state.newSettings;
+          newSettings.size = value;
+          this.setState({ newSettings: newSettings });
+        }
+        break;
+      case "time": {
+        if (this.state.newSettings) {
+          const newSettings = this.state.newSettings;
+          newSettings.timeInSeconds = value;
+          this.setState({ newSettings: newSettings });
+        }
+        break;
+      }
       default:
         alert("Unknown text field name: " + name);
         break;
     }
   }
 
-  handleFormSubmit(event: FormEvent<HTMLFormElement>) {
+  async handleFormSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const formName = event.currentTarget.name;
-    if (formName === "lobby") {
-      if (this.validateNickname() && this.validateLobbyCode()) {
-        join(this.state.nickname, this.state.lobbyCode).then((UUIDReturn) => {
-          this.handleUUIDReturn(UUIDReturn);
-        });
-      }
-    } else if (formName === "word") {
-      if (this.state.word) {
-        let words = this.state.words;
-        const first = this.state.word[0];
-        if (first === "." || first === "-" || first === "!") {
-          words.delete(this.state.word.slice(1));
-          removeWord(this.state.uuid, this.state.word.slice(1));
-        } else {
-          words.add(this.state.word);
-          sendWord(this.state.uuid, this.state.word);
+    switch (formName) {
+      case "lobby":
+        if (this.validateNickname() && this.validateLobbyCode()) {
+          join(this.state.nickname, this.state.lobbyCode).then((UUIDReturn) => {
+            this.handleUUIDReturn(UUIDReturn);
+          });
         }
-        this.setState({ words: words, word: "" });
-        return;
-      }
+        break;
+      case "word":
+        if (this.state.word) {
+          let words = this.state.words;
+          const first = this.state.word[0];
+          let success = false;
+          if (first === "." || first === "-" || first === "!") {
+            words.delete(this.state.word.slice(1));
+            success = await removeWord(
+              this.state.uuid,
+              this.state.word.slice(1)
+            );
+          } else {
+            words.add(this.state.word);
+            success = await sendWord(this.state.uuid, this.state.word);
+          }
+
+          if (success) {
+            this.setState({ words: words, word: "" });
+          }
+          return;
+        }
+        break;
+      case "settings":
+        // TODO: reword app state so new/current settings either both present or both absent
+        if (this.state.newSettings) {
+          const sizeInt = parseInt(this.state.newSettings.size);
+          const timeInt = parseInt(this.state.newSettings.timeInSeconds);
+          if (this.state.currentSettings) {
+            if (isNaN(sizeInt) && isNaN(timeInt)) {
+              this.setState({
+                newSettings: {
+                  size: this.state.currentSettings.size.toString(),
+                  timeInSeconds: this.state.currentSettings.timeInSeconds.toString(),
+                },
+              });
+              alert("Invalid board size and game time");
+              return;
+            } else if (isNaN(sizeInt)) {
+              const newSettings = this.state.newSettings;
+              newSettings.size = this.state.currentSettings.size.toString();
+              this.setState({ newSettings: newSettings });
+              alert("Invalid board size");
+              return;
+            } else if (isNaN(timeInt)) {
+              const newSettings = this.state.newSettings;
+              newSettings.timeInSeconds = this.state.currentSettings.timeInSeconds.toString();
+              this.setState({ newSettings: newSettings });
+              alert("Invalid game time");
+              return;
+            }
+            if (sizeInt > 9) {
+              alert("Please select grid size less than 10");
+              return;
+            }
+            const success = await settings(this.state.uuid, sizeInt, timeInt);
+            if (success) {
+              this.setState({
+                newSettings: {
+                  size: sizeInt.toString(),
+                  timeInSeconds: timeInt.toString(),
+                },
+              });
+              alert("Changes successful!")
+            }
+          }
+        }
+        break;
+      default:
+        alert("unknown form " + formName)
+        break;
     }
   }
 
@@ -232,10 +308,6 @@ class App extends Component<AppProps, AppState> {
         this.handleUUIDReturn(UUIDReturn);
       });
     }
-  }
-
-  changeSettings() {
-    settings(this.state.uuid, 6, 20);
   }
 
   handleUUIDReturn(response: false | string) {
@@ -259,11 +331,21 @@ class App extends Component<AppProps, AppState> {
     if (!this.state.lobbyCode) {
       this.setState({ lobbyCode: lobbyInfo.lobbyCode });
     }
+    if (!this.state.newSettings) {
+      const newSettings = {
+        size: lobbyInfo.currentSettings.size.toString(),
+        timeInSeconds: lobbyInfo.currentSettings.timeInSeconds.toString(),
+      };
+      this.setState({
+        currentSettings: lobbyInfo.currentSettings,
+        newSettings: newSettings,
+      });
+    }
     if (lobbyInfo.state === "InLobby") {
       if (lobbyInfo.lastRoundScores === null) {
         this.setState(
           {
-            settings: lobbyInfo.currentSettings,
+            currentSettings: lobbyInfo.currentSettings,
             hostName: lobbyInfo.hostName,
             lastRound: undefined,
             lobbyCode: lobbyInfo.lobbyCode,
@@ -274,10 +356,9 @@ class App extends Component<AppProps, AppState> {
           () => this.resetWords(lobbyInfo)
         );
       } else {
-        console.log(lobbyInfo.lastRoundScores)
         this.setState(
           {
-            settings: lobbyInfo.currentSettings,
+            currentSettings: lobbyInfo.currentSettings,
             hostName: lobbyInfo.hostName,
             lastRound: lobbyInfo.lastRoundScores,
             lobbyCode: lobbyInfo.lobbyCode,
@@ -291,7 +372,7 @@ class App extends Component<AppProps, AppState> {
     } else if (lobbyInfo.state === "StartingGame") {
       this.setState(
         {
-          settings: lobbyInfo.currentSettings,
+          currentSettings: lobbyInfo.currentSettings,
           hostName: lobbyInfo.hostName,
           lobbyCode: lobbyInfo.lobbyCode,
           startTime: lobbyInfo.startTime,
@@ -303,7 +384,7 @@ class App extends Component<AppProps, AppState> {
     } else if (lobbyInfo.state === "InGame") {
       this.setState(
         {
-          settings: lobbyInfo.currentSettings,
+          currentSettings: lobbyInfo.currentSettings,
           hostName: lobbyInfo.hostName,
           lobbyCode: lobbyInfo.lobbyCode,
           endTime: lobbyInfo.endTime,
@@ -388,8 +469,10 @@ class App extends Component<AppProps, AppState> {
                 hostName={this.state.hostName}
                 playerNames={this.state.playerNames}
                 lastRound={this.state.lastRound}
+                newSettings={this.state.newSettings}
                 startGameFunction={this.startGame}
-                changeSettingsFunction={this.changeSettings}
+                handleChangeFunction={this.handleTextChange}
+                handleSubmitFunction={this.handleFormSubmit}
               />
             );
           } else {
