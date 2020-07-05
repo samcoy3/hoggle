@@ -22,8 +22,8 @@ type AppProps = {};
 type AppState = {
   nickname: string;
   lobbyCode: string;
-  valid: { nickname?: boolean; lobbyCode?: boolean; };
-  errors: { nickname: string[]; lobbyCode: string[]; };
+  valid: { nickname?: boolean; lobbyCode?: boolean };
+  errors: { nickname: string[]; lobbyCode: string[] };
   uuid: string;
   currentSettings?: {
     size: number;
@@ -54,7 +54,7 @@ class App extends Component<AppProps, AppState> {
       nickname: "",
       lobbyCode: "",
       valid: {},
-      errors: { nickname: [], lobbyCode: []},
+      errors: { nickname: [], lobbyCode: [] },
       uuid: "",
       board: new Array<string>(),
       word: "",
@@ -68,6 +68,7 @@ class App extends Component<AppProps, AppState> {
   }
 
   componentDidMount() {
+    document.title = "Hoggle";
     window.addEventListener("beforeunload", this.beforeunload);
   }
 
