@@ -12,7 +12,7 @@ export type LobbyResponse =
   | {
       currentSettings: { size: number; timeInSeconds: number };
       hostName: string;
-      lastRoundScores: any;
+      lastRoundScores: [{[name: string]: string[]}, {[word: string]: number}] | null;
       lobbyCode: string;
       playerNames: string[];
       state: {
@@ -22,7 +22,7 @@ export type LobbyResponse =
   | {
       currentSettings: { size: number; timeInSeconds: number };
       hostName: string;
-      lastRoundScores: any;
+      lastRoundScores: [{[name: string]: string[]}, {[word: string]: number}] | null;
       lobbyCode: string;
       playerNames: string[];
       state: {
@@ -33,7 +33,7 @@ export type LobbyResponse =
   | {
       currentSettings: { size: number; timeInSeconds: number };
       hostName: string;
-      lastRoundScores: any;
+      lastRoundScores: [{[name: string]: string[]}, {[word: string]: number}] | null;
       lobbyCode: string;
       playerNames: string[];
       state: {
@@ -74,5 +74,5 @@ export type LobbyInfo =
 
 export type LastRound = {
   lastRoundWords: { [name: string]: string[] };
-  lastRoundScores: { [word: string]: number };
+  lastRoundPoints: { [word: string]: number };
 };

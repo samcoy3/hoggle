@@ -6,7 +6,7 @@ type LobbyProps = {
   nickname: string;
   hostName: string;
   playerNames: string[];
-  lastRoundScores?: LastRound;
+  lastRound?: LastRound;
   changeSettingsFunction: ClickEventFunction;
   startGameFunction: ClickEventFunction;
 };
@@ -23,10 +23,10 @@ const Lobby = (props: LobbyProps) => {
         </div>
       ) : null}
       <PlayerList players={props.playerNames} />
-      {props.lastRoundScores ? (
+      {props.lastRound ? (
         <LastRoundScores
           playerNames={props.playerNames}
-          lastRoundScores={props.lastRoundScores}
+          lastRound={props.lastRound}
         />
       ) : null}
     </div>
@@ -46,25 +46,35 @@ const PlayerList = (props: PlayerListProps) => {
 
 type LastRoundScoresProps = {
   playerNames: string[];
-  lastRoundScores: LastRound;
+  lastRound: LastRound;
 };
 
 const LastRoundScores = (props: LastRoundScoresProps) => {
   const listPlayers = props.playerNames.map((player, i) => (
-    <li key={i}>
+    <div className="player-score-card">
       <h1>{player}</h1>
-      <PlayerWords words={props.lastRoundScores.lastRoundWords[player]} />
-    </li>
+      <PlayerWords
+        words={props.lastRound.lastRoundWords[player]}
+        points={props.lastRound.lastRoundPoints}
+      />
+    </div>
   ));
   return <ul>{listPlayers}</ul>;
 };
 
 type PlayerWordsProps = {
   words: string[];
+  points: { [word: string]: number };
 };
 
 const PlayerWords = (props: PlayerWordsProps) => {
-  const listWords = props.words.map((word, i) => <li key={i}>{word}</li>);
+  const listWords = props.words.map((word, i) => (
+    <section className="player-word-list">
+      <div className="player-word">{word}</div>
+      <div className="player-word-score">{props.points[word]}</div>
+    </section>
+  ));
+
   return <ul>{listWords}</ul>;
 };
 

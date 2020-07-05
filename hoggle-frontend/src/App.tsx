@@ -52,7 +52,7 @@ type AppState = {
     timeInSeconds: number;
   };
   hostName?: string;
-  lastRoundScores?: LastRound;
+  lastRound?: LastRound;
   playerNames?: string[];
   startTime?: number;
   endTime?: number;
@@ -265,7 +265,7 @@ class App extends Component<AppProps, AppState> {
           {
             settings: lobbyInfo.currentSettings,
             hostName: lobbyInfo.hostName,
-            lastRoundScores: undefined,
+            lastRound: undefined,
             lobbyCode: lobbyInfo.lobbyCode,
             playerNames: lobbyInfo.playerNames,
             startTime: undefined,
@@ -279,7 +279,7 @@ class App extends Component<AppProps, AppState> {
           {
             settings: lobbyInfo.currentSettings,
             hostName: lobbyInfo.hostName,
-            lastRoundScores: lobbyInfo.lastRoundScores,
+            lastRound: lobbyInfo.lastRoundScores,
             lobbyCode: lobbyInfo.lobbyCode,
             playerNames: lobbyInfo.playerNames,
             startTime: undefined,
@@ -387,7 +387,7 @@ class App extends Component<AppProps, AppState> {
                 nickname={this.state.nickname}
                 hostName={this.state.hostName}
                 playerNames={this.state.playerNames}
-                lastRoundScores={this.state.lastRoundScores}
+                lastRound={this.state.lastRound}
                 startGameFunction={this.startGame}
                 changeSettingsFunction={this.changeSettings}
               />

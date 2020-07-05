@@ -86,7 +86,7 @@ const toLobbyInfo = (json: LobbyResponse): LobbyInfo => {
   if (json.lastRoundScores !== null) {
     lastRoundScores = {
       lastRoundWords: json.lastRoundScores[0],
-      lastRoundScores: json.lastRoundScores[1],
+      lastRoundPoints: json.lastRoundScores[1],
     }
   }
 
