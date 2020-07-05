@@ -92,7 +92,7 @@ class App extends Component<AppProps, AppState> {
     if (this.state.interval) {
       clearInterval(this.state.interval);
     }
-    this.setState({timerRunning: false})
+    this.setState({ timerRunning: false });
   }
 
   beforeunload = (e: Event) => {
@@ -308,71 +308,73 @@ class App extends Component<AppProps, AppState> {
   }
 
   async getLobby() {
-    const lobbyInfo: LobbyInfo = await info(this.state.uuid);
-    if (!this.state.lobbyCode) {
-      this.setState({ lobbyCode: lobbyInfo.lobbyCode });
-    }
-    if (!this.state.newSettings) {
-      const newSettings = {
-        size: lobbyInfo.currentSettings.size.toString(),
-        timeInSeconds: lobbyInfo.currentSettings.timeInSeconds.toString(),
-      };
-      this.setState({
-        currentSettings: lobbyInfo.currentSettings,
-        newSettings: newSettings,
-      });
-    }
-    if (lobbyInfo.state === "InLobby") {
-      if (lobbyInfo.lastRoundScores === null) {
+    const response = await info(this.state.uuid);
+    if (response !== false) {
+      if (!this.state.lobbyCode) {
+        this.setState({ lobbyCode: response.lobbyCode });
+      }
+      if (!this.state.newSettings) {
+        const newSettings = {
+          size: response.currentSettings.size.toString(),
+          timeInSeconds: response.currentSettings.timeInSeconds.toString(),
+        };
+        this.setState({
+          currentSettings: response.currentSettings,
+          newSettings: newSettings,
+        });
+      }
+      if (response.state === "InLobby") {
+        if (response.lastRoundScores === null) {
+          this.setState(
+            {
+              currentSettings: response.currentSettings,
+              hostName: response.hostName,
+              lastRound: undefined,
+              lobbyCode: response.lobbyCode,
+              playerNames: response.playerNames,
+              startTime: undefined,
+              endTime: undefined,
+            },
+            () => this.resetWords(response)
+          );
+        } else {
+          this.setState(
+            {
+              currentSettings: response.currentSettings,
+              hostName: response.hostName,
+              lastRound: response.lastRoundScores,
+              lobbyCode: response.lobbyCode,
+              playerNames: response.playerNames,
+              startTime: undefined,
+              endTime: undefined,
+            },
+            () => this.resetWords(response)
+          );
+        }
+      } else if (response.state === "StartingGame") {
         this.setState(
           {
-            currentSettings: lobbyInfo.currentSettings,
-            hostName: lobbyInfo.hostName,
-            lastRound: undefined,
-            lobbyCode: lobbyInfo.lobbyCode,
-            playerNames: lobbyInfo.playerNames,
-            startTime: undefined,
+            currentSettings: response.currentSettings,
+            hostName: response.hostName,
+            lobbyCode: response.lobbyCode,
+            startTime: response.startTime,
             endTime: undefined,
+            board: [],
           },
-          () => this.resetWords(lobbyInfo)
+          () => this.resetWords(response)
         );
-      } else {
+      } else if (response.state === "InGame") {
         this.setState(
           {
-            currentSettings: lobbyInfo.currentSettings,
-            hostName: lobbyInfo.hostName,
-            lastRound: lobbyInfo.lastRoundScores,
-            lobbyCode: lobbyInfo.lobbyCode,
-            playerNames: lobbyInfo.playerNames,
-            startTime: undefined,
-            endTime: undefined,
+            currentSettings: response.currentSettings,
+            hostName: response.hostName,
+            lobbyCode: response.lobbyCode,
+            endTime: response.endTime,
+            board: response.board,
           },
-          () => this.resetWords(lobbyInfo)
+          () => this.resetWords(response)
         );
       }
-    } else if (lobbyInfo.state === "StartingGame") {
-      this.setState(
-        {
-          currentSettings: lobbyInfo.currentSettings,
-          hostName: lobbyInfo.hostName,
-          lobbyCode: lobbyInfo.lobbyCode,
-          startTime: lobbyInfo.startTime,
-          endTime: undefined,
-          board: [],
-        },
-        () => this.resetWords(lobbyInfo)
-      );
-    } else if (lobbyInfo.state === "InGame") {
-      this.setState(
-        {
-          currentSettings: lobbyInfo.currentSettings,
-          hostName: lobbyInfo.hostName,
-          lobbyCode: lobbyInfo.lobbyCode,
-          endTime: lobbyInfo.endTime,
-          board: lobbyInfo.board,
-        },
-        () => this.resetWords(lobbyInfo)
-      );
     }
   }
 

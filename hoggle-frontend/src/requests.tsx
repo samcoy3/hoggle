@@ -45,25 +45,17 @@ const fetchUUID = async (
   }
 };
 
-const info = async (uuid: string) => {
+const info = async (uuid: string): Promise<false | LobbyInfo> => {
   const data = qs.stringify({ uuid: uuid });
-  return post(LOBBY_INFO_ENDPOINT, data)
-    .then((response) => {
-      if (!response.ok) {
-        throw new Error(response.statusText);
-      }
-      return response.json();
-    })
-    .then((json) => {
-      console.log(json);
-      return toLobbyInfo(json);
-    })
-    .catch((e) => {
-      if (e instanceof Error) {
-        console.error(e.message);
-      }
-      throw e;
-    });
+  const response = await post(LOBBY_INFO_ENDPOINT, data)
+  if (!response.ok) {
+    const content = await response.text();
+    alert(response.status + " " + content);
+    return false;
+  } else {
+    const json = await response.json();
+    return toLobbyInfo(json);
+  }
 };
 
 const toLobbyInfo = (json: LobbyResponse): LobbyInfo => {
