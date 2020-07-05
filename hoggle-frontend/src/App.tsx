@@ -1,12 +1,43 @@
 import React, { Component, FormEvent, ChangeEvent } from "react";
 import "./App.css";
 
-import { join, newLobby, info, start, sendWord, removeWord } from "./requests";
-import { LobbyInfo } from "./types";
+import {
+  join,
+  newLobby,
+  info,
+  settings,
+  start,
+  sendWord,
+  removeWord,
+  leave,
+} from "./requests";
+import { LobbyInfo, LastRound } from "./types";
 
 import Landing from "./Landing";
 import Lobby from "./Lobby";
 import Game from "./Game";
+
+// type AppProps = {};
+// type AppState = { exit: boolean };
+
+// class App extends Component<AppProps, AppState> {
+//   constructor(props: AppProps) {
+//     super(props);
+//     this.state = { exit: false };
+//   }
+//   componentDidMount() {
+//     window.addEventListener("beforeunload", () => {
+//       this.setState({ exit: true });
+//     });
+//   }
+//   render() {
+//     if (this.state.exit) {
+//       return false;
+//     } else {
+//       return <InnerApp />;
+//     }
+//   }
+// }
 
 type AppProps = {};
 
@@ -21,12 +52,15 @@ type AppState = {
     timeInSeconds: number;
   };
   hostName?: string;
-  lastRoundScores?: null;
+  lastRoundScores?: LastRound;
   playerNames?: string[];
   startTime?: number;
+  endTime?: number;
   board: string[];
   word: string;
-  words: Set<String>;
+  words: Set<string>;
+  counter?: number;
+  interval?: NodeJS.Timeout;
 };
 
 class App extends Component<AppProps, AppState> {
@@ -47,7 +81,47 @@ class App extends Component<AppProps, AppState> {
     this.handleFormSubmit = this.handleFormSubmit.bind(this);
     this.createLobby = this.createLobby.bind(this);
     this.startGame = this.startGame.bind(this);
+    this.changeSettings = this.changeSettings.bind(this);
   }
+
+  componentDidMount() {
+    window.addEventListener("beforeunload", this.beforeunload);
+  }
+
+  // componentWillUnmount() {
+  //   window.addEventListener("beforeunload", this.unload);
+  // }
+
+  startTimer() {
+    const interval = setInterval(() => {
+      let counter = undefined;
+      if (this.state.startTime && this.state.startTime > Date.now()) {
+        counter = Math.ceil((this.state.startTime - Date.now()) / 1000);
+      } else if (this.state.endTime && this.state.endTime > Date.now()) {
+        counter = Math.ceil((this.state.endTime - Date.now()) / 1000);
+      }
+      this.setState({ counter: counter });
+    }, 1000);
+    this.setState({ interval: interval });
+  }
+
+  cancelTimer() {
+    if (this.state.interval) {
+      clearInterval(this.state.interval);
+    }
+  }
+
+  beforeunload = (e: Event) => {
+    e.preventDefault();
+    if (this.fetchInterval) {
+      clearInterval(this.fetchInterval);
+    }
+    if (this.state.uuid) {
+      leave(this.state.uuid);
+    }
+    this.cancelTimer();
+    this.setState({ uuid: "" });
+  };
 
   validateNickname(): boolean {
     const maxLength = 16;
@@ -160,6 +234,10 @@ class App extends Component<AppProps, AppState> {
     }
   }
 
+  changeSettings() {
+    settings(this.state.uuid, 6, 20);
+  }
+
   handleUUIDReturn(response: false | string) {
     if (response !== false) {
       this.setState(
@@ -178,47 +256,84 @@ class App extends Component<AppProps, AppState> {
 
   async getLobby() {
     const lobbyInfo: LobbyInfo = await info(this.state.uuid);
-    this.setState({
-      settings: lobbyInfo.currentSettings,
-      hostName: lobbyInfo.hostName,
-      lastRoundScores: lobbyInfo.lastRoundScores,
-      lobbyCode: lobbyInfo.lobbyCode,
-      playerNames: lobbyInfo.playerNames,
-    });
-    if (lobbyInfo.state === "InLobby" && this.state.board.length !== 0) {
-      // TODO: ask sam to block changing settings while game in progress?
-      // Moving into lobby from a game
-      // Reset startTime, board, word and words
-      console.log("new lobby");
-      this.setState({
-        startTime: undefined,
-        board: new Array<string>(),
-        word: "",
-        words: new Set<string>(),
-      });
-    } else if (
-      lobbyInfo.state === "StartingGame" &&
-      this.state.startTime !== lobbyInfo.startTime
+    if (!this.state.lobbyCode) {
+      this.setState({ lobbyCode: lobbyInfo.lobbyCode });
+    }
+    if (lobbyInfo.state === "InLobby") {
+      if (lobbyInfo.lastRoundScores === null) {
+        this.setState(
+          {
+            settings: lobbyInfo.currentSettings,
+            hostName: lobbyInfo.hostName,
+            lastRoundScores: undefined,
+            lobbyCode: lobbyInfo.lobbyCode,
+            playerNames: lobbyInfo.playerNames,
+            startTime: undefined,
+            endTime: undefined,
+          },
+          () => this.resetWords(lobbyInfo)
+        );
+      } else {
+        console.log(lobbyInfo.lastRoundScores)
+        this.setState(
+          {
+            settings: lobbyInfo.currentSettings,
+            hostName: lobbyInfo.hostName,
+            lastRoundScores: lobbyInfo.lastRoundScores,
+            lobbyCode: lobbyInfo.lobbyCode,
+            playerNames: lobbyInfo.playerNames,
+            startTime: undefined,
+            endTime: undefined,
+          },
+          () => this.resetWords(lobbyInfo)
+        );
+      }
+    } else if (lobbyInfo.state === "StartingGame") {
+      this.setState(
+        {
+          settings: lobbyInfo.currentSettings,
+          hostName: lobbyInfo.hostName,
+          lobbyCode: lobbyInfo.lobbyCode,
+          startTime: lobbyInfo.startTime,
+          endTime: undefined,
+          board: [],
+        },
+        () => this.resetWords(lobbyInfo)
+      );
+    } else if (lobbyInfo.state === "InGame") {
+      this.setState(
+        {
+          settings: lobbyInfo.currentSettings,
+          hostName: lobbyInfo.hostName,
+          lobbyCode: lobbyInfo.lobbyCode,
+          endTime: lobbyInfo.endTime,
+          board: lobbyInfo.board,
+        },
+        () => this.resetWords(lobbyInfo)
+      );
+    }
+  }
+
+  resetWords(lobbyInfo: LobbyInfo) {
+    if (
+      (lobbyInfo.state === "StartingGame" || lobbyInfo.state === "InGame") &&
+      !this.state.interval
     ) {
-      // Moving into starting game from lobby/old game
-      console.log("new start");
-      this.setState({
-        startTime: lobbyInfo.startTime,
-        word: "",
-        words: new Set<String>(),
-      });
-    } else if (
-      lobbyInfo.state === "InGame" &&
-      this.state.startTime !== lobbyInfo.startTime
+      this.startTimer();
+    } else if (lobbyInfo.state === "InLobby" && this.state.interval) {
+      this.cancelTimer();
+    }
+
+    if (
+      (this.state.word || this.state.words.size > 0) &&
+      (lobbyInfo.state === "InLobby" ||
+        lobbyInfo.state === "StartingGame" ||
+        (lobbyInfo.state === "InGame" &&
+          lobbyInfo.endTime !== this.state.endTime))
     ) {
-      // Moving into game from startingGame/old game
-      console.log("new game");
-      this.setState({
-        startTime: lobbyInfo.startTime,
-        board: lobbyInfo.board,
-        word: "",
-        words: new Set<String>(),
-      });
+      if (lobbyInfo.state === "InGame") {
+      }
+      this.setState({ word: "", words: new Set<string>() });
     }
   }
 
@@ -250,31 +365,33 @@ class App extends Component<AppProps, AppState> {
       </div>
       <div className="App-body">
         {(() => {
-          if (this.state.hostName && this.state.playerNames) {
-            if (this.state.startTime) {
-              return (
-                <Game
-                  lobbyCode={this.state.lobbyCode}
-                  board={this.state.board}
-                  hostName={this.state.hostName}
-                  startTime={this.state.startTime}
-                  nickname={this.state.nickname}
-                  word={this.state.word}
-                  words={this.state.words}
-                  wordChangeFunction={this.handleTextChange}
-                  wordSubmitFunction={this.handleFormSubmit}
-                />
-              );
-            } else {
-              return (
-                <Lobby
-                  hostName={this.state.hostName}
-                  playerNames={this.state.playerNames}
-                  nickname={this.state.nickname}
-                  startGameFunction={this.startGame}
-                />
-              );
-            }
+          if (
+            this.state.hostName &&
+            (this.state.startTime || this.state.endTime)
+          ) {
+            return (
+              <Game
+                board={this.state.board}
+                hostName={this.state.hostName}
+                nickname={this.state.nickname}
+                word={this.state.word}
+                words={this.state.words}
+                wordChangeFunction={this.handleTextChange}
+                wordSubmitFunction={this.handleFormSubmit}
+                counter={this.state.counter}
+              />
+            );
+          } else if (this.state.hostName && this.state.playerNames) {
+            return (
+              <Lobby
+                nickname={this.state.nickname}
+                hostName={this.state.hostName}
+                playerNames={this.state.playerNames}
+                lastRoundScores={this.state.lastRoundScores}
+                startGameFunction={this.startGame}
+                changeSettingsFunction={this.changeSettings}
+              />
+            );
           } else {
             return (
               <Landing

@@ -36,8 +36,8 @@ section {
   border-radius: 2vmin;
   display: flex;
   flex-flow: column;
-  width: 70vmin;
-  height: 70vmin;
+  width: 60vmin;
+  height: 60vmin;
   flex-grow: 0;
 }
 

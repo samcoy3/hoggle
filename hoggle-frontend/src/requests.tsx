@@ -1,5 +1,5 @@
 import qs from "qs";
-import { LobbyResponse, LobbyInfo } from "./types";
+import { LobbyResponse, LobbyInfo, LastRound } from "./types";
 
 const API = "https://hoggle.meme.ninja/api";
 const LOBBY_NEW_ENDPOINT = API + "/lobby/new";
@@ -70,6 +70,7 @@ const toLobbyInfo = (json: LobbyResponse): LobbyInfo => {
   let time;
   let board;
   let words;
+  let lastRoundScores;
 
   if (json.state.tag === "StartingGame") {
     time = Date.parse(json.state.contents);
@@ -82,15 +83,22 @@ const toLobbyInfo = (json: LobbyResponse): LobbyInfo => {
     words = json.state.contents[2];
   }
 
+  if (json.lastRoundScores !== null) {
+    lastRoundScores = {
+      lastRoundWords: json.lastRoundScores[0],
+      lastRoundScores: json.lastRoundScores[1],
+    }
+  }
+
   if (time && board && words) {
     return {
       currentSettings: json.currentSettings,
       hostName: json.hostName,
-      lastRoundScores: json.lastRoundScores,
+      lastRoundScores: lastRoundScores,
       lobbyCode: json.lobbyCode,
       playerNames: json.playerNames,
       state: "InGame",
-      startTime: time,
+      endTime: time,
       board: board,
       words: words,
     };
@@ -98,7 +106,7 @@ const toLobbyInfo = (json: LobbyResponse): LobbyInfo => {
     return {
       currentSettings: json.currentSettings,
       hostName: json.hostName,
-      lastRoundScores: json.lastRoundScores,
+      lastRoundScores: lastRoundScores,
       lobbyCode: json.lobbyCode,
       playerNames: json.playerNames,
       state: "StartingGame",
@@ -108,7 +116,7 @@ const toLobbyInfo = (json: LobbyResponse): LobbyInfo => {
     return {
       currentSettings: json.currentSettings,
       hostName: json.hostName,
-      lastRoundScores: json.lastRoundScores,
+      lastRoundScores: lastRoundScores,
       lobbyCode: json.lobbyCode,
       playerNames: json.playerNames,
       state: "InLobby",
@@ -128,6 +136,7 @@ const start = async (uuid: string) => {
 
 const leave = async (uuid: string) => {
   const data = qs.stringify({ uuid: uuid });
+  alert(data);
   return await getSuccess(LOBBY_LEAVE_ENDPOINT, data);
 };
 
@@ -143,7 +152,7 @@ const removeWord = async (uuid: string, word: string) => {
 
 const getSuccess = async (endpoint: string, data: string) => {
   const response = await post(endpoint, data);
-  console.log(response)
+  console.log(response);
   if (!response.ok) {
     const content = await response.text();
     alert(response.status + " " + content);
@@ -153,4 +162,4 @@ const getSuccess = async (endpoint: string, data: string) => {
   }
 };
 
-export { newLobby, join, info, settings, start, leave, sendWord, removeWord};
+export { newLobby, join, info, settings, start, leave, sendWord, removeWord };

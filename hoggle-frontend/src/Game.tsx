@@ -1,49 +1,35 @@
-import React from "react";
+import React, { Component } from "react";
 import "./main.css";
 
 import { ChangeEventFunction, SubmitEventFunction } from "./types";
 
 type GameProps = {
-  lobbyCode: string;
   board: string[];
   hostName: string;
-  startTime: number;
   nickname: string;
   word: string;
   words: Set<String>;
   wordChangeFunction: ChangeEventFunction;
   wordSubmitFunction: SubmitEventFunction;
+  counter?: number;
 };
 
 const Game = (props: GameProps) => {
-  const startTime = props.startTime;
-  const [counter, setCounter] = React.useState(
-    startTime > Date.now()
-      ? Math.ceil((startTime - Date.now()) / 1000)
-      : Math.ceil((startTime + 180 * 1000 - Date.now()) / 1000)
-  );
-
-  React.useEffect(() => {
-    startTime > Date.now() &&
-      setTimeout(
-        () => setCounter(Math.ceil((startTime - Date.now()) / 1000)),
-        1000
-      );
-    startTime <= Date.now() &&
-      setTimeout(
-        () =>
-          setCounter(Math.ceil((startTime + 180 * 1000 - Date.now()) / 1000)),
-        1000
-      );
-  }, [counter]);
 
   return (
     <div>
       <div className="timer">
-        <h1>{counter}</h1>
+        {props.counter ? (
+          <h1>{props.counter}</h1>
+        ) : (
+          <h1>Game starting...</h1>
+        )}
       </div>
       <div className="game">
-        <Board letters={props.board} size={Math.sqrt(props.board.length)} />
+        <Board
+          letters={props.board}
+          size={Math.sqrt(props.board.length)}
+        />
         <div className="words">
           <SingleInputForm
             name={"word"}
@@ -58,18 +44,7 @@ const Game = (props: GameProps) => {
       </div>
     </div>
   );
-};
-
-type PlayerListProps = {
-  players: string[];
-};
-
-const PlayerList = (props: PlayerListProps) => {
-  const listPlayers = props.players.map((player, i) => (
-    <li key={i}>{player}</li>
-  ));
-  return <ul>{listPlayers}</ul>;
-};
+}
 
 type WordListProps = {
   words: Set<String>;
@@ -77,10 +52,8 @@ type WordListProps = {
 
 const WordList = (props: WordListProps) => {
   const sorted = Array.from(props.words).sort();
-  const listWords = sorted.map((word, i) => (
-    <li key={i}>{word}</li>
-  ))
-  return <ul>{listWords}</ul>
+  const listWords = sorted.map((word, i) => <li key={i}>{word}</li>);
+  return <ul>{listWords}</ul>;
 };
 
 type BoardProps = {
@@ -90,7 +63,6 @@ type BoardProps = {
 
 const Board = (props: BoardProps) => {
   const getRows = () => {
-    const letters = props.letters;
     const size = props.size;
     var rows = [];
     for (var i = 0; i < size; i++) {
