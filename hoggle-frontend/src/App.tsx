@@ -1,5 +1,4 @@
 import React, { Component, FormEvent, ChangeEvent } from "react";
-import "./main.css";
 
 import {
   join,
@@ -70,7 +69,6 @@ class App extends Component<AppProps, AppState> {
   }
 
   componentDidMount() {
-    document.title = "Hoggle";
     window.addEventListener("beforeunload", this.beforeunload);
   }
 
