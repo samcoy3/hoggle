@@ -1,5 +1,4 @@
 import React, { Component, FormEvent, ChangeEvent } from "react";
-import "./App.css";
 
 import {
   join,
@@ -7,9 +6,10 @@ import {
   info,
   settings,
   start,
+  leave,
   sendWord,
   removeWord,
-  leave,
+  reroll,
 } from "./requests";
 import { LobbyInfo, LastRound } from "./types";
 
@@ -22,8 +22,8 @@ type AppProps = {};
 type AppState = {
   nickname: string;
   lobbyCode: string;
-  valid: { nickname?: boolean; lobbyCode?: boolean; };
-  errors: { nickname: string[]; lobbyCode: string[]; };
+  valid: { nickname?: boolean; lobbyCode?: boolean };
+  errors: { nickname: string[]; lobbyCode: string[] };
   uuid: string;
   currentSettings?: {
     size: number;
@@ -54,7 +54,7 @@ class App extends Component<AppProps, AppState> {
       nickname: "",
       lobbyCode: "",
       valid: {},
-      errors: { nickname: [], lobbyCode: []},
+      errors: { nickname: [], lobbyCode: [] },
       uuid: "",
       board: new Array<string>(),
       word: "",
@@ -65,6 +65,7 @@ class App extends Component<AppProps, AppState> {
     this.handleFormSubmit = this.handleFormSubmit.bind(this);
     this.createLobby = this.createLobby.bind(this);
     this.startGame = this.startGame.bind(this);
+    this.rerollGame = this.rerollGame.bind(this);
   }
 
   componentDidMount() {
@@ -233,7 +234,7 @@ class App extends Component<AppProps, AppState> {
         }
         break;
       case "settings":
-        // TODO: reword app state so new/current settings either both present or both absent
+        // TODO: rework app state so new/current settings either both present or both absent
         if (this.state.newSettings) {
           const sizeInt = parseInt(this.state.newSettings.size);
           const timeInt = parseInt(this.state.newSettings.timeInSeconds);
@@ -405,29 +406,35 @@ class App extends Component<AppProps, AppState> {
     start(this.state.uuid);
   }
 
+  rerollGame() {
+    if (reroll(this.state.uuid)) {
+      this.setState({ counter: undefined });
+    }
+  }
+
   render = () => (
-    <div className="App">
-      <div className="App-header">
+    <div id="App">
+      <div id="App-header">
         {/* <img src={logo} className="App-logo" alt="logo" /> */}
         {(() => {
           if (!this.state.uuid) {
             return (
-              <div>
+              <div id="landing-header">
                 <h1>Hoggle</h1>
                 <h2>An Online Multiplayer Boggle Game</h2>
               </div>
             );
           } else {
             return (
-              <section className="lobby-header">
+              <div id="lobby-game-header">
                 <h1>{this.state.lobbyCode}</h1>
                 <h1>{this.state.nickname}</h1>
-              </section>
+              </div>
             );
           }
         })()}
       </div>
-      <div className="App-body">
+      <div id="App-body">
         {(() => {
           if (
             this.state.hostName &&
@@ -438,10 +445,12 @@ class App extends Component<AppProps, AppState> {
                 board={this.state.board}
                 hostName={this.state.hostName}
                 nickname={this.state.nickname}
+                newSettings={this.state.newSettings}
                 word={this.state.word}
                 words={this.state.words}
-                wordChangeFunction={this.handleTextChange}
-                wordSubmitFunction={this.handleFormSubmit}
+                rerollGameFunction={this.rerollGame}
+                handleChangeFunction={this.handleTextChange}
+                handleSubmitFunction={this.handleFormSubmit}
                 counter={this.state.counter}
               />
             );
