@@ -1,5 +1,4 @@
 import React from "react";
-import "./main.css";
 import {
   ClickEventFunction,
   SubmitEventFunction,
@@ -17,9 +16,9 @@ type AdminPanelProps = {
 
 const AdminPanel = (props: AdminPanelProps) => (
   <div id="admin-panel">
-    <div id="admin-panel-title">Admin Panel</div>
+    <h2 id="admin-panel-title">Admin Panel</h2>
     <div id="settings-form">
-      <div id="settings-title">Settings</div>
+      <h3 id="settings-title">Settings</h3>
       <TextInputForm
         formName={"settings"}
         inputs={[

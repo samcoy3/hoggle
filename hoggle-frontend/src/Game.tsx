@@ -1,6 +1,4 @@
 import React from "react";
-import "./main.css";
-
 import {
   ChangeEventFunction,
   SubmitEventFunction,
@@ -34,21 +32,21 @@ const Game = (props: GameProps) => {
           gameFunction={props.rerollGameFunction}
         />
       ) : null}
-      <div className="timer">
+      <div id="timer">
         {props.counter ? <h1>{props.counter}</h1> : <h1>--</h1>}
       </div>
-      <div id="board">
+      <div id="play-area">
         <Board letters={props.board} size={Math.sqrt(props.board.length)} />
-        <div className="words">
-          <TextInputForm
-            formName={"word"}
-            inputs={[{ name: "word", value: props.word }]}
-            handleChangeFunction={props.handleChangeFunction}
-            handleSubmitFunction={props.handleSubmitFunction}
-          />
-          <div className="words-list">
-            <WordList words={props.words} />
+        <div id="words">
+          <div id="word-input">
+            <TextInputForm
+              formName={"word"}
+              inputs={[{ name: "word", value: props.word }]}
+              handleChangeFunction={props.handleChangeFunction}
+              handleSubmitFunction={props.handleSubmitFunction}
+            />
           </div>
+          <WordList words={props.words} />
         </div>
       </div>
     </div>
@@ -61,8 +59,12 @@ type WordListProps = {
 
 const WordList = (props: WordListProps) => {
   const sorted = Array.from(props.words).sort();
-  const listWords = sorted.map((word, i) => <li key={i}>{word}</li>);
-  return <ul>{listWords}</ul>;
+  const listWords = sorted.map((word, i) => (
+    <div className="word" key={i}>
+      {word}
+    </div>
+  ));
+  return <div id="words-list">{listWords}</div>;
 };
 
 type BoardProps = {
@@ -81,7 +83,7 @@ const Board = (props: BoardProps) => {
     }
     return rows;
   };
-  return <div className="board-contents">{getRows()}</div>;
+  return <div id="board">{getRows()}</div>;
 };
 
 type RowProps = {

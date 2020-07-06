@@ -1,44 +1,90 @@
-.text-input {
-  border-radius: 0.5em;
+#App {
+  text-align: center;
 }
 
-.text-input.invalid {
-  border-color: red;
+#App-header {
+  background-color: #282c34;
+  font-size: calc(10px + 2vmin);
+  color: white;
 }
 
-.error {
-  color: red;
-}
-
-section {
-  width: 100%;
-}
-
-.lobby-header {
+#landing-header {
   display: flex;
-  flex-flow: row wrap;
-  justify-content: center;
+  flex-direction: column;
 }
 
-.lobby-header * {
-  flex-grow: 1;
-}
-
-.game {
+#lobby-game-header {
   display: flex;
-  flex-flow: row wrap;
   justify-content: space-around;
 }
 
-.board-contents {
+#App-body {
+  margin: 1rem;
+}
+
+#landing,
+#lobby,
+#game {
+  display: flex;
+  flex-flow: column;
+  align-items: center;
+}
+
+#board,
+#words,
+#admin-panel,
+#settings-form,
+.tile,
+.score-card,
+.player-name {
   border-style: solid;
   border-color: grey;
-  border-radius: 2vmin;
+  border-radius: 1rem;
+}
+
+#admin-panel {
+  padding: 0rem 1rem 0.5rem 1rem;
+}
+
+#settings-form {
+  margin-bottom: 0.5rem;
+}
+
+#lobby-players-title {
+  margin-bottom: 0.5rem;
+}
+
+#player-list {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.player-name {
+  border-width: thin;
+  padding: 0.5rem;
+  margin: 0.5rem;
+  border-radius: 0.5rem;
+  background-color: lightblue;
+}
+
+#play-area {
+  width: 90vw;
+  display: flex;
+  flex-flow: row wrap;
+  align-items: stretch;
+  align-content: center;
+  justify-content: center;
+  margin: 0rem 0rem 2rem 0rem;
+}
+
+#board {
   display: flex;
   flex-flow: column;
   width: 60vmin;
   height: 60vmin;
   flex-grow: 0;
+  margin: 0.5vw;
 }
 
 .board-row {
@@ -47,11 +93,8 @@ section {
 }
 
 .tile {
-  border-style: solid;
-  border-color: grey;
-  border-radius: 2vmin;
   background-color: lightblue;
-  font-size: 20pt;
+  font-size: xxx-large;
   margin: 0.5vmin;
   width: 100%;
   display: flex;
@@ -59,66 +102,44 @@ section {
   align-items: center;
 }
 
-.text-input-wrapper {
-  padding: 0.5rem;
-}
-
-.form-wrapper {
-  padding-bottom: 0.5rem;
-}
-
-#lobby, #game {
+#words {
+  height: 60vmin;
   display: flex;
-  flex-flow: column;
+  flex-direction: column;
+  flex-grow: 1;
+  margin: 0.5vw;
+}
+
+#word-input {
+  border-bottom: solid lightgray;
+}
+
+#words-list {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  flex-wrap: wrap;
   align-items: center;
-}
-
-#admin-panel {
-  border: solid;
-  margin-top: 1rem;
-  padding: 1rem;
-}
-
-#admin-panel-title {
-  font-size: xx-large;
-  padding-bottom: 0.5rem;
-}
-
-#settings-title {
-  font-size: x-large;
-  margin: 0px;
-  padding-bottom: 0px;
-}
-
-#settings-form {
-  border: solid;
-  margin-bottom: 1rem;
+  overflow: auto;
 }
 
 #score-card-container {
   display: flex;
   flex-flow: row wrap;
-  align-items: center;
+  justify-content: center;
 }
 
-.score-card {
-  border-style: solid;
-  border-color: darkslategray;
-  border-radius: 0.5rem;
-  overflow: hidden;
+.score-card,
+.score-card-word-list {
+  overflow: auto;
   display: flex;
   flex-direction: column;
 }
 
 .score-card-title {
-  font-size: x-large;
   background-color: lightskyblue;
-  padding: 0.2rem 0.5rem 0rem 0.5rem;
-}
-
-.score-card-word-list {
-  display: flex;
-  flex-direction: column;
+  padding: 0.4rem 0.5rem 0.4rem 0.5rem;
+  margin: 0rem 0rem 0rem 0rem;
 }
 
 .score-card-word.wrong {
@@ -131,4 +152,32 @@ section {
 
 .score-card-word.right {
   background-color: lightgreen;
+}
+
+.score-card-word:first-child {
+  padding-top: 0.4rem;
+}
+
+.score-card-word:last-child {
+  padding-bottom: 0.4rem;
+}
+
+.form-wrapper {
+  padding-bottom: 0.5rem;
+}
+
+.text-input-wrapper {
+  padding: 0.5rem;
+}
+
+.text-input {
+  border-radius: 0.5em;
+}
+
+.text-input.invalid {
+  border-color: red;
+}
+
+.error {
+  color: red;
 }

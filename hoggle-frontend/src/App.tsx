@@ -1,5 +1,5 @@
 import React, { Component, FormEvent, ChangeEvent } from "react";
-import "./App.css";
+import "./main.css";
 
 import {
   join,
@@ -415,28 +415,28 @@ class App extends Component<AppProps, AppState> {
   }
 
   render = () => (
-    <div className="App">
-      <div className="App-header">
+    <div id="App">
+      <div id="App-header">
         {/* <img src={logo} className="App-logo" alt="logo" /> */}
         {(() => {
           if (!this.state.uuid) {
             return (
-              <div>
+              <div id="landing-header">
                 <h1>Hoggle</h1>
                 <h2>An Online Multiplayer Boggle Game</h2>
               </div>
             );
           } else {
             return (
-              <section className="lobby-header">
+              <div id="lobby-game-header">
                 <h1>{this.state.lobbyCode}</h1>
                 <h1>{this.state.nickname}</h1>
-              </section>
+              </div>
             );
           }
         })()}
       </div>
-      <div className="App-body">
+      <div id="App-body">
         {(() => {
           if (
             this.state.hostName &&
