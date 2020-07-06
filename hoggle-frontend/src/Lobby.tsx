@@ -1,5 +1,4 @@
 import React from "react";
-import "./main.css";
 import {
   ClickEventFunction,
   LastRound,
@@ -25,10 +24,11 @@ const Lobby = (props: LobbyProps) => {
     <div id="lobby">
       {props.nickname === props.hostName && props.newSettings ? (
         <AdminPanel
+          location="Lobby"
           newSettings={props.newSettings}
           handleChangeFunction={props.handleChangeFunction}
           handleSubmitFunction={props.handleSubmitFunction}
-          startGameFunction={props.startGameFunction}
+          gameFunction={props.startGameFunction}
         />
       ) : null}
       <PlayerList players={props.playerNames} />
@@ -48,14 +48,14 @@ type PlayerListProps = {
 
 const PlayerList = (props: PlayerListProps) => {
   const listPlayers = props.players.map((player, i) => (
-    <div className="player-name" key={i}>
+    <h4 className="player-name" key={i}>
       {player}
-    </div>
+    </h4>
   ));
   return (
-    <div className="player-list">
-      <h2>Players In Lobby:</h2>
-      {listPlayers}
+    <div id="lobby-players">
+      <h2 id="lobby-players-title">Players In Lobby:</h2>
+      <div id="player-list">{listPlayers}</div>
     </div>
   );
 };

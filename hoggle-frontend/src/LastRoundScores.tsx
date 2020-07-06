@@ -1,5 +1,4 @@
 import React from "react";
-import "./main.css";
 import { LastRound } from "./types";
 type LastRoundScoresProps = {
   playerNames: string[];
@@ -22,9 +21,9 @@ const LastRoundScores = (props: LastRoundScoresProps) => {
     if (props.lastRound.lastRoundWords[player]) {
       return (
         <div className="score-card" key={i}>
-          <div className="score-card-title">
+          <h3 className="score-card-title">
             {player + " :: " + getScore(player)}
-          </div>
+          </h3>
           <PlayerWords
             words={props.lastRound.lastRoundWords[player]}
             points={props.lastRound.lastRoundPoints}
@@ -37,7 +36,7 @@ const LastRoundScores = (props: LastRoundScoresProps) => {
   });
   return (
     <div id="last-round">
-      <div id="last-round-title">Last Round Scores</div>
+      <h2 id="last-round-title">Last Round Scores</h2>
       <div id="score-card-container">{getPlayerCards}</div>
     </div>
   );
