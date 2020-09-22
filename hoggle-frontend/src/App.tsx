@@ -50,9 +50,10 @@ class App extends Component<AppProps, AppState> {
   fetchInterval?: NodeJS.Timeout;
   constructor(props: AppProps) {
     super(props);
+    const lobbyCode = this.get_url_param('lobby')
     this.state = {
       nickname: "",
-      lobbyCode: "",
+      lobbyCode: lobbyCode != null ? lobbyCode : "",
       valid: {},
       errors: { nickname: [], lobbyCode: [] },
       uuid: "",
@@ -107,6 +108,12 @@ class App extends Component<AppProps, AppState> {
     this.cancelTimer();
     this.setState({ uuid: "" });
   };
+
+  get_url_param(param_name: string): string | null {
+    const queryString = window.location.search;
+    const urlParams = new URLSearchParams(queryString);
+    return urlParams.get(param_name);
+  }
 
   validateNickname(): boolean {
     const maxLength = 16;
