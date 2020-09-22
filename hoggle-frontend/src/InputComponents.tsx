@@ -31,6 +31,7 @@ const TextInput = (props: TextInputProps) => (
 type TextInputFormProps = {
   formName: string;
   inputs: Array<{ name: string; value: string; label?: string }>;
+  autocompleteOff?: boolean;
   handleChangeFunction: ChangeEventFunction;
   handleSubmitFunction: SubmitEventFunction;
 };
@@ -49,6 +50,7 @@ const TextInputForm = (props: TextInputFormProps) => {
     <div className="form-wrapper">
       <form
         name={props.formName}
+        autoComplete={props.autocompleteOff ? "off" : ""}
         onSubmit={props.handleSubmitFunction}
         noValidate
       >

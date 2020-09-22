@@ -42,6 +42,7 @@ const Game = (props: GameProps) => {
             <TextInputForm
               formName={"word"}
               inputs={[{ name: "word", value: props.word }]}
+              autocompleteOff={true}
               handleChangeFunction={props.handleChangeFunction}
               handleSubmitFunction={props.handleSubmitFunction}
             />
