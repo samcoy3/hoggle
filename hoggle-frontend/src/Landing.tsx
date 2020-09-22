@@ -5,6 +5,7 @@ import {
   SubmitEventFunction,
   ClickEventFunction,
 } from "./types";
+import { TextInput } from "./InputComponents"
 
 type LandingProps = {
   nickname: string;
@@ -52,33 +53,6 @@ const ErrorList = (props: ErrorListProps) => {
     </div>
   );
 };
-
-type TextInputProps = {
-  label: string;
-  name: string;
-  value: string;
-  valid?: boolean;
-  handleChangeFunction: ChangeEventFunction;
-  info?: string;
-};
-
-const TextInput = (props: TextInputProps) => (
-  <div className="text-input-wrapper">
-    <label htmlFor={props.name}>{props.label}</label>
-    <input
-      className={`text-input ${props.valid === false ? "invalid" : ""}`}
-      type="text"
-      name={props.name}
-      value={props.value}
-      onChange={props.handleChangeFunction}
-    />
-    {props.info ? (
-      <div className="info">
-        <small>{props.info}</small>
-      </div>
-    ) : null}
-  </div>
-);
 
 type JoinFormProps = {
   lobbyCode: string;
