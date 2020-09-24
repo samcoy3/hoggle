@@ -61,6 +61,7 @@ class App extends Component<AppProps, AppState> {
     this.createLobby = this.createLobby.bind(this);
     this.startGame = this.startGame.bind(this);
     this.rerollGame = this.rerollGame.bind(this);
+    this.copyJoinUrl = this.copyJoinUrl.bind(this);
   }
 
   componentDidMount() {
@@ -474,6 +475,12 @@ class App extends Component<AppProps, AppState> {
     if (this.state.uuid) reroll(this.state.uuid);
   }
 
+  copyJoinUrl(event: React.MouseEvent<HTMLHeadingElement, MouseEvent>): void {
+    let joinUrl =
+      window.location.origin + "/?lobby=" + event.currentTarget.innerText;
+    navigator.clipboard.writeText(joinUrl);
+  }
+
   render = () => (
     <div id="App">
       <div id="App-header">
@@ -489,7 +496,7 @@ class App extends Component<AppProps, AppState> {
           } else {
             return (
               <div id="lobby-game-header">
-                <h1>{this.state.lobbyCode}</h1>
+                <h1 onClick={this.copyJoinUrl}>{this.state.lobbyCode}</h1>
                 <h1>{this.state.nickname}</h1>
               </div>
             );
