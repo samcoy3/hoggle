@@ -1,32 +1,6 @@
 import React from "react";
-import { ChangeEventFunction, SubmitEventFunction } from "./types";
-
-type TextInputProps = {
-  name: string;
-  value: string;
-  label?: string;
-  info?: string;
-  valid?: boolean;
-  handleChangeFunction: ChangeEventFunction;
-};
-
-const TextInput = (props: TextInputProps) => (
-  <div className="text-input-wrapper">
-    {props.label ? <label htmlFor={props.name}>{props.label}</label> : null}
-    <input
-      className={`text-input ${props.valid === false ? "invalid" : ""}`}
-      type="text"
-      name={props.name}
-      value={props.value}
-      onChange={props.handleChangeFunction}
-    />
-    {props.info ? (
-      <div className="info">
-        <small>{props.info}</small>
-      </div>
-    ) : null}
-  </div>
-);
+import { ChangeEventFunction, SubmitEventFunction } from "../../../types";
+import TextInput from "../TextInput/TextInput";
 
 type TextInputFormProps = {
   formName: string;
@@ -61,4 +35,4 @@ const TextInputForm = (props: TextInputFormProps) => {
   );
 };
 
-export { TextInput, TextInputForm };
+export default TextInputForm;

@@ -3,8 +3,8 @@ import {
   ClickEventFunction,
   SubmitEventFunction,
   ChangeEventFunction,
-} from "./types";
-import { TextInputForm } from "./InputComponents";
+} from "../../../types";
+import TextInputForm from "../TextInputForm/TextInputForm";
 
 type AdminPanelProps = {
   location: "Lobby" | "Game";
@@ -43,4 +43,4 @@ const AdminPanel = (props: AdminPanelProps) => (
   </div>
 );
 
-export { AdminPanel };
+export default AdminPanel;

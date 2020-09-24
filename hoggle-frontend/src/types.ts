@@ -78,7 +78,28 @@ export type LobbyInfo =
       words: string[];
     };
 
+export type GameData = {
+  board: string[];
+  word: string;
+  words: Set<string>;
+};
+
 export type LastRound = {
   lastRoundWords: { [name: string]: string[] };
   lastRoundPoints: { [word: string]: number };
+};
+
+type CurrentSettings = {
+  size: number;
+  timeInSeconds: number;
+};
+
+export type NewSettings = {
+  size: string;
+  timeInSeconds: string;
+};
+
+export type AdminSettings = {
+  currentSettings: CurrentSettings;
+  newSettings: NewSettings;
 };
