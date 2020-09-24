@@ -60,59 +60,56 @@ const info = async (uuid: string): Promise<false | LobbyInfo> => {
 };
 
 const toLobbyInfo = (json: LobbyResponse): LobbyInfo => {
-  let time;
+  let changeTime;
   let board;
   let words;
   let lastRoundScores;
 
   if (json.state.tag === "StartingGame") {
-    time = Date.parse(json.state.contents);
+    // If response indicates starting game, extract change time
+    changeTime = Date.parse(json.state.contents);
   } else if (json.state.tag === "InGame") {
-    time = Date.parse(json.state.contents[0]);
+    // If response indicates in game, extract time, board, and words
+    changeTime = Date.parse(json.state.contents[0]);
     board = [];
     for (var i = 0; i < json.state.contents[1].length; i++) {
       board.push(json.state.contents[1][i][1]);
     }
     words = json.state.contents[2];
-  }
-
-  if (json.lastRoundScores !== null) {
+  } else if (json.state.tag === "InLobby" && json.lastRoundScores) {
+    // If response indicates in lobby and last round present, extract last round data
     lastRoundScores = {
       lastRoundWords: json.lastRoundScores[0],
       lastRoundPoints: json.lastRoundScores[1],
     };
   }
 
-  if (time && board && words) {
+  if (changeTime && board && words) {
     return {
-      currentSettings: json.currentSettings,
-      hostName: json.hostName,
-      lastRoundScores: lastRoundScores,
-      lobbyCode: json.lobbyCode,
-      playerNames: json.playerNames,
       state: "InGame",
-      endTime: time,
+      hostName: json.hostName,
+      lobbyCode: json.lobbyCode,
+      currentSettings: json.currentSettings,
+      changeTime: changeTime,
       board: board,
       words: words,
     };
-  } else if (time) {
+  } else if (changeTime) {
     return {
-      currentSettings: json.currentSettings,
-      hostName: json.hostName,
-      lastRoundScores: lastRoundScores,
-      lobbyCode: json.lobbyCode,
-      playerNames: json.playerNames,
       state: "StartingGame",
-      startTime: time,
+      lobbyCode: json.lobbyCode,
+      hostName: json.hostName,
+      currentSettings: json.currentSettings,
+      changeTime: changeTime,
     };
   } else {
     return {
-      currentSettings: json.currentSettings,
-      hostName: json.hostName,
-      lastRoundScores: lastRoundScores,
-      lobbyCode: json.lobbyCode,
-      playerNames: json.playerNames,
       state: "InLobby",
+      lobbyCode: json.lobbyCode,
+      hostName: json.hostName,
+      currentSettings: json.currentSettings,
+      lastRoundScores: lastRoundScores,
+      playerNames: json.playerNames,
     };
   }
 };

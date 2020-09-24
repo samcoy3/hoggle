@@ -6,74 +6,70 @@ export type ChangeEventFunction = (
 export type SubmitEventFunction = (event: FormEvent<HTMLFormElement>) => void;
 export type ClickEventFunction = (event: MouseEvent<HTMLButtonElement>) => void;
 
-export type LobbyState = "InLobby" | "StartingGame" | "InGame";
-
+// Structure of server response with lobby info
 export type LobbyResponse =
   | {
-      currentSettings: { size: number; timeInSeconds: number };
-      hostName: string;
-      lastRoundScores:
-        | [{ [name: string]: string[] }, { [word: string]: number }]
-        | null;
-      lobbyCode: string;
-      playerNames: string[];
       state: {
         tag: "InLobby";
       };
-    }
-  | {
-      currentSettings: { size: number; timeInSeconds: number };
+      lobbyCode: string;
       hostName: string;
+      currentSettings: CurrentSettings;
+      playerNames: string[];
       lastRoundScores:
         | [{ [name: string]: string[] }, { [word: string]: number }]
         | null;
-      lobbyCode: string;
-      playerNames: string[];
+    }
+  | {
       state: {
         tag: "StartingGame";
         contents: string;
       };
-    }
-  | {
-      currentSettings: { size: number; timeInSeconds: number };
+      lobbyCode: string;
       hostName: string;
+      currentSettings: { size: number; timeInSeconds: number };
+      playerNames: string[];
       lastRoundScores:
         | [{ [name: string]: string[] }, { [word: string]: number }]
         | null;
-      lobbyCode: string;
-      playerNames: string[];
+    }
+  | {
       state: {
         tag: "InGame";
         contents: [string, [[any], string], string[]];
       };
+      lobbyCode: string;
+      hostName: string;
+      currentSettings: { size: number; timeInSeconds: number };
+      playerNames: string[];
+      lastRoundScores:
+        | [{ [name: string]: string[] }, { [word: string]: number }]
+        | null;
     };
 
+// Type for lobby info passed to App from server response 
 export type LobbyInfo =
   | {
-      currentSettings: { size: number; timeInSeconds: number };
-      hostName: string;
-      lastRoundScores?: LastRound;
-      lobbyCode: string;
-      playerNames: string[];
       state: "InLobby";
+      lobbyCode: string;
+      hostName: string;
+      currentSettings: CurrentSettings;
+      playerNames: string[];
+      lastRoundScores?: LastRound;
     }
   | {
-      currentSettings: { size: number; timeInSeconds: number };
-      hostName: string;
-      lastRoundScores?: LastRound;
-      lobbyCode: string;
-      playerNames: string[];
       state: "StartingGame";
-      startTime: number;
+      lobbyCode: string;
+      hostName: string;
+      currentSettings: CurrentSettings;
+      changeTime: number;
     }
   | {
-      currentSettings: { size: number; timeInSeconds: number };
-      hostName: string;
-      lastRoundScores?: LastRound;
-      lobbyCode: string;
-      playerNames: string[];
       state: "InGame";
-      endTime: number;
+      lobbyCode: string;
+      hostName: string;
+      currentSettings: CurrentSettings;
+      changeTime: number;
       board: string[];
       words: string[];
     };

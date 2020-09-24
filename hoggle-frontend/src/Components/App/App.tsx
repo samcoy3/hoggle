@@ -424,14 +424,14 @@ class App extends Component<AppProps, AppState> {
 
         if (
           this.state.status !== "StartingGame" ||
-          this.state.changeTime !== response.startTime
+          this.state.changeTime !== response.changeTime
         ) {
           // Not previously starting this game
           // Need to set time and unset old data
           this.setState(
             {
               status: "StartingGame",
-              changeTime: response.startTime,
+              changeTime: response.changeTime,
               playerNames: undefined,
               lastRound: undefined,
               gameData: undefined,
@@ -445,7 +445,7 @@ class App extends Component<AppProps, AppState> {
         if (
           !(
             this.state.status === "InGame" &&
-            this.state.changeTime === response.endTime &&
+            this.state.changeTime === response.changeTime &&
             JSON.stringify(this.state.gameData?.board) ===
               JSON.stringify(response.board)
           )
@@ -460,7 +460,7 @@ class App extends Component<AppProps, AppState> {
                 word: "",
                 words: new Set<string>(),
               },
-              changeTime: response.endTime,
+              changeTime: response.changeTime,
               playerNames: undefined,
               lastRound: undefined,
             },
