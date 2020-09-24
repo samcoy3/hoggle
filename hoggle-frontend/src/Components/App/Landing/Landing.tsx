@@ -34,7 +34,7 @@ const Landing = (props: LandingProps) => (
     />
     <TextInputForm
       formName={"lobbyCode"}
-      inputs={[{ name: "lobbyCode", value: props.lobbyCode }]}
+      inputs={[{ name: "lobbyCode", value: props.lobbyCode, label: "Lobby code:" }]}
       autocompleteOff={true}
       handleChangeFunction={props.handleChangeFunction}
       handleSubmitFunction={props.joinLobbyFunction}

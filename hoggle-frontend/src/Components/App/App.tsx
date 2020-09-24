@@ -338,6 +338,8 @@ class App extends Component<AppProps, AppState> {
   createLobby() {
     // If nickname validates, send new lobby API request and handle response
     if (this.validateNickname()) {
+      // Clear anything from lobby code
+      this.setState({ lobbyCode: ""})
       newLobby(this.state.nickname).then((UUIDReturn) => {
         this.handleUUIDReturn(UUIDReturn);
       });
