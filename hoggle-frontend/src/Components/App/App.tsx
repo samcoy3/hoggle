@@ -339,7 +339,7 @@ class App extends Component<AppProps, AppState> {
     // If nickname validates, send new lobby API request and handle response
     if (this.validateNickname()) {
       // Clear anything from lobby code
-      this.setState({ lobbyCode: ""})
+      this.setState({ lobbyCode: "" });
       newLobby(this.state.nickname).then((UUIDReturn) => {
         this.handleUUIDReturn(UUIDReturn);
       });
@@ -514,7 +514,9 @@ class App extends Component<AppProps, AppState> {
           } else {
             return (
               <div id="lobby-game-header">
-                <h1 onClick={this.copyJoinUrl}>{this.state.lobbyCode}</h1>
+                <h1 id="lobby-code" onClick={this.copyJoinUrl}>
+                  {this.state.lobbyCode}
+                </h1>
                 <h1>{this.state.nickname}</h1>
               </div>
             );
