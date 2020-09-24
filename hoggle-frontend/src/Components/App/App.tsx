@@ -89,18 +89,27 @@ class App extends Component<AppProps, AppState> {
   }
 
   beforeunload = (e: Event) => {
+    // (Hopefully) runs of user quitting
+    // TODO: work out how to make this nicer (while still consistent)
     e.preventDefault();
-    if (this.fetchInterval) {
-      clearInterval(this.fetchInterval);
-    }
     if (this.state.uuid) {
+      // Send API request for user leaving
+      // Allows for reassigning host if needed
+      // Also removes user from lobby list
       leave(this.state.uuid);
     }
+    if (this.fetchInterval) {
+      // Clear the fetch data interval
+      clearInterval(this.fetchInterval);
+    }
+    // Cancel timer
     this.cancelTimer();
+    // Remove uuid
     this.setState({ uuid: "" });
   };
 
   get_url_param(param_name: string): string | null {
+    // Get specified parameter from query string
     const queryString = window.location.search;
     const urlParams = new URLSearchParams(queryString);
     return urlParams.get(param_name);
@@ -113,7 +122,6 @@ class App extends Component<AppProps, AppState> {
     const regex = new RegExp(/^[a-zA-Z0-9,.?!\-_ ]+$/);
 
     const nickname = this.state.nickname;
-
     let errors = [];
 
     // Test nickname is present
@@ -141,7 +149,6 @@ class App extends Component<AppProps, AppState> {
     }
 
     // Set state and return bool
-
     return valid;
   }
 
@@ -150,7 +157,6 @@ class App extends Component<AppProps, AppState> {
     const regex = new RegExp(/^[a-zA-Z]+$/);
 
     const lobbyCode = this.state.lobbyCode;
-
     let errors = [];
 
     // Test lobby code is present
@@ -248,23 +254,23 @@ class App extends Component<AppProps, AppState> {
 
           // Get word without removal indicator
           const word = gameData.word.slice(1);
-          // Remove from set
-          gameData.words.delete(word);
+          // Send remove word API request
+          removeWord(this.state.uuid, word);
+
           // Reset input box
           gameData.word = "";
-          // Send remove word API request
-          success = await removeWord(this.state.uuid, word);
+          // Setting state now helps for slow connections
+          // Waiting until success causes input to clear at incovenient times
+          this.setState({ gameData: gameData });
         } else {
           const word = gameData.word;
-          // Add word to set
-          gameData.words.add(word);
+          // Send add word API request
+          sendWord(this.state.uuid, word);
+
           // Reset input box
           gameData.word = "";
-          // Send add word API request
-          success = await sendWord(this.state.uuid, word);
-        }
-        // If request succeeds, update game state
-        if (success) {
+          // Setting state now helps for slow connections
+          // Waiting until success causes input to clear at incovenient times
           this.setState({ gameData: gameData });
         }
         break;
@@ -460,6 +466,16 @@ class App extends Component<AppProps, AppState> {
             },
             () => this.startTimer()
           );
+        } else if (this.state.gameData) {
+          // Update words
+          const words = new Set(response.words);
+          this.setState({
+            gameData: {
+              board: this.state.gameData.board,
+              word: this.state.gameData.word,
+              words: words,
+            },
+          });
         }
       }
     }
