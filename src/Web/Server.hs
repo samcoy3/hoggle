@@ -283,11 +283,14 @@ touchLobby l = case (lobbyState l) of
         return $
           l
             { lobbyState = InLobby',
-              lastRound = Just $
-                LastRound
-                  { submissionMap' = submissionMap,
-                    scoreMap' = scoreWords board . foldr (\s l -> (S.toList s) ++ l) [] $ M.elems submissionMap,
-                    board' = board,
-                    wordsNotInGrid' = S.empty
-                  }
+              lastRound =
+                Just $
+                  LastRound
+                    { submissionMap' = submissionMap,
+                      scoreMap' = scoreMap,
+                      board' = board,
+                      wordsNotInGrid' = S.fromList $ filter (not . isOnBoard board) (M.keys scoreMap)
+                    }
             }
+    where
+      scoreMap = scoreWords board . foldr (\s l -> (S.toList s) ++ l) [] $ M.elems submissionMap
