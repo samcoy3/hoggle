@@ -9,7 +9,7 @@ import {
 } from "../../../types";
 import TextInputForm from "../TextInputForm/TextInputForm";
 import AdminPanel from "../AdminPanel/AdminPanel";
-import Board from "./Board/Board";
+import Board from "../Board/Board";
 import WordList from "./WordList/WordList";
 
 type GameProps = {

@@ -64,6 +64,7 @@ const toLobbyInfo = (json: LobbyResponse): LobbyInfo => {
   let board;
   let words;
   let lastRoundScores;
+  var i;
 
   if (json.state.tag === "StartingGame") {
     // If response indicates starting game, extract change time
@@ -72,15 +73,21 @@ const toLobbyInfo = (json: LobbyResponse): LobbyInfo => {
     // If response indicates in game, extract time, board, and words
     changeTime = Date.parse(json.state.contents[0]);
     board = [];
-    for (var i = 0; i < json.state.contents[1].length; i++) {
+    for (i = 0; i < json.state.contents[1].length; i++) {
       board.push(json.state.contents[1][i][1]);
     }
     words = json.state.contents[2];
   } else if (json.state.tag === "InLobby" && json.lastRoundScores) {
     // If response indicates in lobby and last round present, extract last round data
+    board = [];
+    for (i = 0; i < json.lastRoundScores.board.length; i++) {
+      board.push(json.lastRoundScores.board[i][1]);
+    }    
     lastRoundScores = {
-      lastRoundWords: json.lastRoundScores[0],
-      lastRoundPoints: json.lastRoundScores[1],
+      playerWords: json.lastRoundScores.submissionMap,
+      wordPoints: json.lastRoundScores.scoreMap,
+      board: board,
+      notInGrid: json.lastRoundScores.wordsNotInGrid,
     };
   }
 

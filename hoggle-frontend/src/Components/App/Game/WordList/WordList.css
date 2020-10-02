@@ -5,9 +5,11 @@
   overflow: auto;
 }
 
-.word:hover {
-    text-decoration: line-through red;
-    cursor: pointer;
+.word {
+  margin: 0;
 }
 
-p { margin:0 }
+.word:hover {
+  text-decoration: line-through red;
+  cursor: pointer;
+}

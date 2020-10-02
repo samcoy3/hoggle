@@ -1,0 +1,29 @@
+.score-card-word-list {
+  overflow: auto;
+  display: flex;
+  flex-direction: column;
+}
+
+.score-card-word.wrong {
+  background-color: lightcoral;
+}
+
+.score-card-word.not-in-grid {
+  background-color: plum;
+}
+
+.score-card-word.shared {
+  background-color: lightgrey;
+}
+
+.score-card-word.right {
+  background-color: lightgreen;
+}
+
+.score-card-word:first-child {
+  padding-top: 0.4rem;
+}
+
+.score-card-word:last-child {
+  padding-bottom: 0.4rem;
+}

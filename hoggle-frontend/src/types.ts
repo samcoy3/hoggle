@@ -4,8 +4,12 @@ export type ChangeEventFunction = (
   event: ChangeEvent<HTMLInputElement>
 ) => void;
 export type SubmitEventFunction = (event: FormEvent<HTMLFormElement>) => void;
-export type ButtonClickEventFunction = (event: MouseEvent<HTMLButtonElement>) => void;
-export type ParagraphClickEventFunction = (event: MouseEvent<HTMLParagraphElement>) => void;
+export type ButtonClickEventFunction = (
+  event: MouseEvent<HTMLButtonElement>
+) => void;
+export type ParagraphClickEventFunction = (
+  event: MouseEvent<HTMLParagraphElement>
+) => void;
 
 // Structure of server response with lobby info
 export type LobbyResponse =
@@ -17,9 +21,12 @@ export type LobbyResponse =
       hostName: string;
       currentSettings: CurrentSettings;
       playerNames: string[];
-      lastRoundScores:
-        | [{ [name: string]: string[] }, { [word: string]: number }]
-        | null;
+      lastRoundScores: {
+        submissionMap: { [name: string]: string[] };
+        scoreMap: { [word: string]: number };
+        board: [[any], string];
+        wordsNotInGrid: string[];
+      } | null;
     }
   | {
       state: {
@@ -30,9 +37,12 @@ export type LobbyResponse =
       hostName: string;
       currentSettings: { size: number; timeInSeconds: number };
       playerNames: string[];
-      lastRoundScores:
-        | [{ [name: string]: string[] }, { [word: string]: number }]
-        | null;
+      lastRoundScores: {
+        submissionMap: { [name: string]: string[] };
+        scoreMap: { [word: string]: number };
+        board: [[any], string];
+        wordsNotInGrid: string[];
+      } | null;
     }
   | {
       state: {
@@ -43,12 +53,15 @@ export type LobbyResponse =
       hostName: string;
       currentSettings: { size: number; timeInSeconds: number };
       playerNames: string[];
-      lastRoundScores:
-        | [{ [name: string]: string[] }, { [word: string]: number }]
-        | null;
+      lastRoundScores: {
+        submissionMap: { [name: string]: string[] };
+        scoreMap: { [word: string]: number };
+        board: [[any], string];
+        wordsNotInGrid: string[];
+      } | null;
     };
 
-// Type for lobby info passed to App from server response 
+// Type for lobby info passed to App from server response
 export type LobbyInfo =
   | {
       state: "InLobby";
@@ -82,8 +95,10 @@ export type GameData = {
 };
 
 export type LastRound = {
-  lastRoundWords: { [name: string]: string[] };
-  lastRoundPoints: { [word: string]: number };
+  playerWords: { [name: string]: string[] };
+  wordPoints: { [word: string]: number };
+  board: string[];
+  notInGrid: string[];
 };
 
 type CurrentSettings = {

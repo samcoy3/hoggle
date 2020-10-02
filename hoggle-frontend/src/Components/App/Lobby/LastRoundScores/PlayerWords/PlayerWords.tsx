@@ -1,19 +1,27 @@
 import React from "react";
+import "./PlayerWords.css"
 
 type PlayerWordsProps = {
   words: string[];
-  points: { [word: string]: number };
+  wordPoints: { [word: string]: number };
+  notInGrid: string[];
 };
 
 const PlayerWords = (props: PlayerWordsProps) => {
   const listWords = props.words
     ? props.words.map((word, i) => {
-        const points = props.points[word];
+        const points = props.wordPoints[word];
         return (
           <div
             key={i}
             className={`score-card-word ${
-              points > 0 ? "right" : points === 0 ? "shared" : "wrong"
+              points > 0
+                ? "right"
+                : props.notInGrid.includes(word)
+                ? "not-in-grid"
+                : points === 0
+                ? "shared"
+                : "wrong"
             }`}
           >
             {word + " :: " + points}
