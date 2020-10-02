@@ -1,0 +1,13 @@
+#words-list {
+  display: flex;
+  flex-direction: column;
+  flex-wrap: wrap;
+  overflow: auto;
+}
+
+.word:hover {
+    text-decoration: line-through red;
+    cursor: pointer;
+}
+
+p { margin:0 }

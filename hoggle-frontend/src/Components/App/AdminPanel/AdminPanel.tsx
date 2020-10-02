@@ -1,6 +1,6 @@
 import React from "react";
 import {
-  ClickEventFunction,
+  ButtonClickEventFunction,
   SubmitEventFunction,
   ChangeEventFunction,
 } from "../../../types";
@@ -11,7 +11,7 @@ type AdminPanelProps = {
   newSettings: { size: string; timeInSeconds: string };
   handleChangeFunction: ChangeEventFunction;
   handleSubmitFunction: SubmitEventFunction;
-  gameFunction: ClickEventFunction;
+  gameFunction: ButtonClickEventFunction;
 };
 
 const AdminPanel = (props: AdminPanelProps) => (

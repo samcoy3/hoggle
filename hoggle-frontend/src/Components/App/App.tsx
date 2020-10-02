@@ -59,6 +59,7 @@ class App extends Component<AppProps, AppState> {
     this.handleTextChange = this.handleTextChange.bind(this);
     this.handleFormSubmit = this.handleFormSubmit.bind(this);
     this.createLobby = this.createLobby.bind(this);
+    this.handleRemoveWord = this.handleRemoveWord.bind(this);
     this.startGame = this.startGame.bind(this);
     this.rerollGame = this.rerollGame.bind(this);
     this.copyJoinUrl = this.copyJoinUrl.bind(this);
@@ -346,6 +347,15 @@ class App extends Component<AppProps, AppState> {
     }
   }
 
+  handleRemoveWord(e: React.MouseEvent<HTMLParagraphElement>): void {
+    // Get word
+    let word = e.currentTarget.innerText;
+    console.log(word);
+
+    // Can't remove word without uuid
+    if (this.state.uuid) removeWord(this.state.uuid, word);
+  }
+
   handleUUIDReturn(response: false | string) {
     // Handle UUID | false response from server
     if (response !== false) {
@@ -532,9 +542,10 @@ class App extends Component<AppProps, AppState> {
                 gameData={this.state.gameData}
                 counter={this.state.counter}
                 newSettings={this.state.gameSettings?.newSettings}
-                rerollGameFunction={this.rerollGame}
-                handleChangeFunction={this.handleTextChange}
-                handleSubmitFunction={this.handleFormSubmit}
+                handleRerollGameFunction={this.rerollGame}
+                handleChangeInputFunction={this.handleTextChange}
+                handleSubmitWordFunction={this.handleFormSubmit}
+                handleRemoveWordFunction={this.handleRemoveWord}
               />
             );
           } else if (this.state.playerNames) {

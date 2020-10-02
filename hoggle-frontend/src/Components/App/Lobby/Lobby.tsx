@@ -1,6 +1,6 @@
 import React from "react";
 import {
-  ClickEventFunction,
+  ButtonClickEventFunction,
   LastRound,
   SubmitEventFunction,
   ChangeEventFunction,
@@ -16,7 +16,7 @@ type LobbyProps = {
   newSettings?: NewSettings;
   handleChangeFunction: ChangeEventFunction;
   handleSubmitFunction: SubmitEventFunction;
-  startGameFunction: ClickEventFunction;
+  startGameFunction: ButtonClickEventFunction;
 };
 
 const Lobby = (props: LobbyProps) => {

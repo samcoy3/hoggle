@@ -2,7 +2,7 @@ import React from "react";
 import {
   ChangeEventFunction,
   SubmitEventFunction,
-  ClickEventFunction,
+  ButtonClickEventFunction,
 } from "../../../types";
 import ErrorList from "./ErrorList/ErrorList";
 import TextInput from "../TextInput/TextInput";
@@ -15,7 +15,7 @@ type LandingProps = {
   lobbyCodeErrors?: string[];
   handleChangeFunction: ChangeEventFunction;
   joinLobbyFunction: SubmitEventFunction;
-  createLobbyFunction: ClickEventFunction;
+  createLobbyFunction: ButtonClickEventFunction;
 };
 
 const Landing = (props: LandingProps) => (

@@ -136,14 +136,7 @@ code {
   border-bottom: solid lightgray;
 }
 
-#words-list {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  flex-wrap: wrap;
-  align-items: center;
-  overflow: auto;
-}
+
 
 #score-card-container {
   display: flex;

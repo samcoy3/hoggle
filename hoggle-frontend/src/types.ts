@@ -4,7 +4,8 @@ export type ChangeEventFunction = (
   event: ChangeEvent<HTMLInputElement>
 ) => void;
 export type SubmitEventFunction = (event: FormEvent<HTMLFormElement>) => void;
-export type ClickEventFunction = (event: MouseEvent<HTMLButtonElement>) => void;
+export type ButtonClickEventFunction = (event: MouseEvent<HTMLButtonElement>) => void;
+export type ParagraphClickEventFunction = (event: MouseEvent<HTMLParagraphElement>) => void;
 
 // Structure of server response with lobby info
 export type LobbyResponse =

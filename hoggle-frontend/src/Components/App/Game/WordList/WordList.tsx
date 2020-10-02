@@ -1,7 +1,10 @@
 import React from "react";
+import { ParagraphClickEventFunction } from "../../../../types";
+import "./WordList.css";
 
 type WordListProps = {
-  words?: Set<String>;
+  words?: Set<string>;
+  handleRemoveWordFunction: ParagraphClickEventFunction;
 };
 
 const WordList = (props: WordListProps) => {
@@ -10,9 +13,9 @@ const WordList = (props: WordListProps) => {
   // Sort words alphabetically
   const sorted = Array.from(props.words).sort();
   const listWords = sorted.map((word, i) => (
-    <div className="word" key={i}>
+    <p onClick={props.handleRemoveWordFunction} className="word" key={i}>
       {word}
-    </div>
+    </p>
   ));
   return <div id="words-list">{listWords}</div>;
 };
