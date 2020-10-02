@@ -27,6 +27,16 @@ type LobbyCode = String
 
 type ServerState = TVar [Lobby]
 
+data LastRound = LastRound
+  { submissionMap' :: SubmissionMap,
+    scoreMap' :: ScoreMap,
+    board' :: Board,
+    wordsNotInGrid' :: Set Submission
+  }
+  deriving (Generic, Show, Eq)
+
+instance ToJSON LastRound
+
 data LobbyState
   = InLobby'
   | StartingGame' UTCTime
@@ -46,7 +56,7 @@ data Lobby = Lobby
     settings :: LobbySettings,
     lobbyState :: LobbyState,
     joinCode :: LobbyCode,
-    previousRoundScores :: Maybe (SubmissionMap, ScoreMap)
+    lastRound :: Maybe LastRound
   }
   deriving (Generic, Show, Eq)
 
@@ -74,13 +84,31 @@ redactLobbyState uuid (InGame' endTime board submissionMap) =
 redactLobbyState _ InLobby' = InLobby
 redactLobbyState _ (StartingGame' t) = StartingGame t
 
+data RedactedLastRound = RedactedLastRound
+  { submissionMap :: Map Text (Set Submission),
+    scoreMap :: ScoreMap,
+    board :: Board,
+    wordsNotInGrid :: Set Submission
+  }
+  deriving (Generic, Show, Eq)
+
+instance ToJSON RedactedLastRound
+
+redactLastRound :: Map UserId Text -> LastRound -> RedactedLastRound
+redactLastRound nicknames LastRound{..} =
+  RedactedLastRound {submissionMap = M.mapKeys (nicknames M.!) submissionMap',
+                     scoreMap = scoreMap',
+                     board = board',
+                     wordsNotInGrid = wordsNotInGrid'
+                    }
+
 data RedactedLobby = RedactedLobby
   { hostName :: Text,
     playerNames :: [Text],
     currentSettings :: LobbySettings,
     state :: RedactedLobbyState,
     lobbyCode :: LobbyCode,
-    lastRoundScores :: Maybe (Map Text (Set Submission), ScoreMap)
+    lastRoundScores :: Maybe RedactedLastRound
   }
   deriving (Generic)
 
@@ -93,9 +121,7 @@ redactLobby uuid Lobby{..} =
                  currentSettings = settings,
                  state = redactLobbyState uuid lobbyState,
                  lobbyCode = joinCode,
-                 lastRoundScores = case previousRoundScores of
-                    Nothing -> Nothing
-                    Just (subMap, scoreMap) -> Just (M.mapKeys (nicknames M.!) subMap, scoreMap)
+                 lastRoundScores = fmap (redactLastRound nicknames) lastRound
                 }
 
 ---- Request Types ----

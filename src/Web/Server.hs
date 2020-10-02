@@ -133,9 +133,11 @@ lobbyServer =
                           { host = if uuid == host l then (players l) !! 1 else host l,
                             players = delete uuid $ players l,
                             nicknames = M.delete uuid $ nicknames l,
-                            previousRoundScores = case (previousRoundScores l) of
+                            lastRound = case (lastRound l) of
                               Nothing -> Nothing
-                              Just (subMap, scoreMap) -> Just (M.delete uuid subMap, scoreMap)
+                              Just lr@LastRound{..} -> Just lr{
+                                submissionMap' = M.delete uuid submissionMap'
+                                                           }
                           }
                       )
               )
@@ -221,7 +223,7 @@ makeNewLobby uuid nick lobbyCode =
       settings = newSettings,
       lobbyState = InLobby',
       joinCode = lobbyCode,
-      previousRoundScores = Nothing
+      lastRound = Nothing
     }
 
 newSettings :: LobbySettings
@@ -277,6 +279,18 @@ touchLobby l = case (lobbyState l) of
     currentTime <- getCurrentTime
     if currentTime < t
       then return l
-      else return $ l { lobbyState = InLobby',
-                     previousRoundScores = Just (submissionMap, scoreWords board . foldr (\s l -> (S.toList s) ++ l) [] $ M.elems submissionMap)
-                   }
+      else
+        return $
+          l
+            { lobbyState = InLobby',
+              lastRound =
+                Just $
+                  LastRound
+                    { submissionMap' = submissionMap,
+                      scoreMap' = scoreMap,
+                      board' = board,
+                      wordsNotInGrid' = S.fromList $ filter (not . isOnBoard board) (M.keys scoreMap)
+                    }
+            }
+    where
+      scoreMap = scoreWords board . foldr (\s l -> (S.toList s) ++ l) [] $ M.elems submissionMap
