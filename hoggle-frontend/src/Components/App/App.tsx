@@ -246,14 +246,15 @@ class App extends Component<AppProps, AppState> {
         if (!this.state.gameData) return;
 
         let gameData = this.state.gameData;
+        // Remove any spaces
+        let word = this.state.gameData.word.replace(/ /g, "");
         // Get first character of input word
-        const first = gameData.word[0];
-        let success = false;
+        const first = word[0];
         if ([".", "-", "!"].includes(first)) {
           // If first char of word is '.' '-' or '!' remove word from list
 
           // Get word without removal indicator
-          const word = gameData.word.slice(1);
+          word = word.slice(1);
           // Send remove word API request
           removeWord(this.state.uuid, word);
 
@@ -263,7 +264,6 @@ class App extends Component<AppProps, AppState> {
           // Waiting until success causes input to clear at incovenient times
           this.setState({ gameData: gameData });
         } else {
-          const word = gameData.word;
           // Send add word API request
           sendWord(this.state.uuid, word);
 
