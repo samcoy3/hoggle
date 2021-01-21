@@ -4,7 +4,7 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: acd8756e8cb6d97c9b555ec7105f5b3c421a03782e9ba844064348ee7ace48c6
+-- hash: cd35b058f791abec91ec29cfd6903ea414f287e01639d60f29ea4a1c5a1514be
 
 name:           hoggle
 version:        0.1.0.0
@@ -37,14 +37,14 @@ library
   hs-source-dirs:
       src
   build-depends:
-      aeson >=1.5
+      aeson
     , base >=4.7 && <5
     , containers >=0.6
     , http-api-data
     , primitive >=0.7
     , random >=1.1
-    , servant >=0.17
-    , servant-server
+    , servant ==0.18.2
+    , servant-server >=0.18
     , stm >=2.5
     , text >=0.11
     , time >=1.9
@@ -62,42 +62,15 @@ executable hoggle-exe
       app
   ghc-options: -threaded -rtsopts -with-rtsopts=-N
   build-depends:
-      aeson >=1.5
+      aeson
     , base >=4.7 && <5
     , containers >=0.6
     , hoggle
     , http-api-data
     , primitive >=0.7
     , random >=1.1
-    , servant >=0.17
-    , servant-server
-    , stm >=2.5
-    , text >=0.11
-    , time >=1.9
-    , transformers >=0.5
-    , uuid >=1.3
-    , wai >=3.2
-    , warp
-  default-language: Haskell2010
-
-test-suite hoggle-test
-  type: exitcode-stdio-1.0
-  main-is: Spec.hs
-  other-modules:
-      Paths_hoggle
-  hs-source-dirs:
-      test
-  ghc-options: -threaded -rtsopts -with-rtsopts=-N
-  build-depends:
-      aeson >=1.5
-    , base >=4.7 && <5
-    , containers >=0.6
-    , hoggle
-    , http-api-data
-    , primitive >=0.7
-    , random >=1.1
-    , servant >=0.17
-    , servant-server
+    , servant ==0.18.2
+    , servant-server >=0.18
     , stm >=2.5
     , text >=0.11
     , time >=1.9
